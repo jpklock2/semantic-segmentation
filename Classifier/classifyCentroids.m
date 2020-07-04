@@ -32,7 +32,7 @@ switch myClassifier
     case 2
         % SVM
 %         addpath('E:\PJ\libsvm-3.24\matlab');
-        [classesP, accuracy, prob_estimates] = svmpredict(rand([size(centroids, 1) 1]), pixels, model, '-q');
+        [classesP, accuracy, prob_estimates] = svmpredict(rand([size(centroids, 1) 1]), centroids, model, '-q');
         classesTemp2 = classesTemp;
         for i = 1:length(pixels)
             classesTemp2(i) = classesP(classesTemp2(i));
