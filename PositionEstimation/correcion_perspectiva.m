@@ -1,9 +1,9 @@
-function [Img1]=correcion_perspectiva(img,yaw,pitch,roll)
+function [distx, disty, Img1]=correcion_perspectiva(img, yaw, pitch, roll, distz)
 
 [h w] = size(img)
-distz=300;
-distx =(300/(tand(90-roll)))
-disty =(300/(tand(90-pitch)))
+% distz=300;
+distx =(300/(tand(90-roll)));
+disty =(300/(tand(90-pitch)));
 
 % Projection 2D - 3D 
 A1=[1 0 -w/2;
