@@ -3,6 +3,7 @@ clear all;
 close all;
 clc;
 warning ('off','all');
+format long g
 
 addpath(genpath('.'));
 
@@ -14,4 +15,4 @@ for i=1:length(listing)
         imageNames = [imageNames; listing(i).name];
     end
 end
-imageNamesCell = cellstr(imageNames);
+% imageNamesCell = cellstr(imageNames);

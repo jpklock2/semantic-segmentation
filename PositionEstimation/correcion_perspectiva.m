@@ -1,6 +1,6 @@
 function [distx, disty, Img1]=correcion_perspectiva(img, yaw, pitch, roll, distz)
 
-[h w] = size(img)
+[h w] = size(img);
 % distz=300;
 distx =(300/(tand(90-roll)));
 disty =(300/(tand(90-pitch)));

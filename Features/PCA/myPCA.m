@@ -14,13 +14,18 @@ if (m == 1)
     end
     fprintf('Number of PCA componentes for %d features and %d%% of variance: %d\n', size(pixelBkpOri,2), myVariance, idxPCA);
     pixels = (coeff(:,1:idxPCA)'*(pixels-mu)')';
+    parameters.pcaMean = mu;
+    parameters.pcaCoeffs = coeff;
+    parameters.pcaN = idxPCA;
 %             pixelsReconstructed = ((coeff(:,1:idx95)*pixelsTemp')+mu')';
 else
     pixelBkp = pixels;
     if usePCA == 2
         [coeff,~,~,~,~,mu] = pca(pixels);
+        pixels = (coeff(:,1:idxPCA)'*(pixels-mu)')';
+    else
+        pixels = (parameters.pcaCoeffs(:,1:parameters.pcaN)'*(pixels-parameters.pcaMean)')';
     end
-    pixels = (coeff(:,1:idxPCA)'*(pixels-mu)')';
 end
 fprintf('Execution time for applying PCA: %f s\n', toc);
 

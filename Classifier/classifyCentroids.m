@@ -32,7 +32,7 @@ switch myClassifier
     case 2
         % SVM
 %         addpath('E:\PJ\libsvm-3.24\matlab');
-        [classesP, accuracy, prob_estimates] = svmpredict(rand([size(centroids, 1) 1]), centroids, model, '-q');
+        [classesP, accuracy, prob_estimates] = svmpredict(rand([size(centroids, 1) 1]), centroids, parameters.model, '-q');
         classesTemp2 = classesTemp;
         for i = 1:length(pixels)
             classesTemp2(i) = classesP(classesTemp2(i));
@@ -60,7 +60,7 @@ switch myClassifier
         YsOut = zeros(size(centroids, 1), 1);
         for k=1:size(centroids, 1)
             for o=1:nO
-                [YsOut(k, o),y,w,b] = saida(centroids(k,:),pi(:,:,o),qi,sig,cent,nRe,nMf,1);
+                [YsOut(k, o),y,w,b] = saida(centroids(k,:),parameters.p(:,:,o),parameters.q,parameters.s,parameters.c,nRe,nMf,1);
             end
             YsOut(k,:) = softmax(YsOut(k,:)')';
         end

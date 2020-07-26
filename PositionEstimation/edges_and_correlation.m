@@ -75,8 +75,8 @@ switch n
 %         imshow(BW_Target)
 end
 
-[r1,c1]=size(BW_Target)
-[r2,c2]=size(BW_Template)
+[r1,c1]=size(BW_Target);
+[r2,c2]=size(BW_Template);
 
 BW_Template_mean=BW_Template-mean(mean(BW_Template));
 BW_Target_mean=BW_Target-mean(mean(BW_Target));
@@ -105,8 +105,8 @@ j=c3;
 [ij,ji] = ind2sub(size(corrMat),snd);
 
 
-ptCenterX = floor(i - (r2/2))
-ptCenterY = floor(j - (c2/2))
+ptCenterX = floor(i - (r2/2));
+ptCenterY = floor(j - (c2/2));
 
 % hFig = figure(55);
 % hAx  = axes;

@@ -5,7 +5,7 @@
  tic;
 
  % obtem a imagem RGB, altera seu tamanho e mostra a imagem original (rows x cols x bands)
- currentImage = strtrim(imageNamesCell{m});   
+ currentImage = strtrim(imageNames{m});   
  rgbImageTemp = imread(currentImage); % im2double() - converte pixels para double
  rgbImage = imresize(rgbImageTemp,0.25,'box'); % diminui o tamanho da imagem para diminuir os calculos
 %  [L,Centers] = imsegkmeans(rgbImage,7);

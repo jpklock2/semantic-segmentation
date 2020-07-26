@@ -358,8 +358,10 @@ tic;
         if (m == 1)
             ftMean = mean(pixels);
             ftStd = std(pixels);
+            parameters.featMean = ftMean;
+            parameters.featStd = ftStd;
         end
-        pixels = (pixels-ftMean)./(2.*(3.*ftStd+1)); 
+        pixels = (pixels-parameters.featMean)./(2.*(3.*parameters.featStd+1)); 
         pixels(isnan(pixels)) = 0;
     end
     

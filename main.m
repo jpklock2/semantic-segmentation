@@ -2,11 +2,11 @@
 initCode;
 
 %% Define flags
-plotsIM = 1; % 0 DON'T PLOT IMAGES | 1 PLOT COLORED SUPERPIXELS
+plotsIM = 0; % 0 DON'T PLOT IMAGES | 1 PLOT COLORED SUPERPIXELS
 plotsCompare = 0; % 0 DON'T PLOT IMAGES | 1 PLOT FCM SEGMENTATION
 myFilter = 1; % 0 NO FILTER | 1 BILATERAL | 2 KUWAHARA | 3 ANISIOTROPIC
 myColorSpace = 0; % 0 RGB | 1 HSV | 2 Lab | 3 sRGB
-myFeatureExtractor = 4; % 1 COLOR | 2 LBP | 3 TEXTURE (LM FILTERS) | 4 COLOR+TEXTURE | 7 GLCM | 5 AUTO-ENCODER
+myFeatureExtractor = 1; % 1 COLOR | 2 LBP | 3 TEXTURE (LM FILTERS) | 4 COLOR+TEXTURE | 7 GLCM | 5 AUTO-ENCODER
 myClassifier = 2; % 1 MSE | 2 SVM | 3 CANFIS | 4 COSINE | 5 ALL (COMPARISON)
 myClusters = 0; % 0 MY CLASSES | 1 MY FCM | 2 MATLAB ANFIS
 classifyMethod = 1; % 0 SUPERPIXELS | 1 CENTROIDS
@@ -116,6 +116,7 @@ myAccs = [];
 %             classesOriTemp = classesOri;
 %             classesOriTemp(classesOriTemp == 0) = -1;
             model = svmtrain(classes, pixelsOri, '-q');
+            parameters.model = model;
             fprintf('\nExecution time for training SVM: %f s\n', toc);
         end
         
@@ -129,6 +130,10 @@ myAccs = [];
             nEp = 100;
 %             [~, cent, sig, pi, qi] = MANFIS(pixelsOri, classesOri, nEp, alfa, inFis);
             [~, cent, sig, pi, qi] = CANFIS(pixelsOri, classesOri, nEp, alfa, inFis);
+            parameters.c = cent;
+            parameters.s = sig;
+            parameters.p = pi;
+            parameters.q = qi;
             fprintf('Execution time for multiclass (C)ANFIS: %f s\n', toc);
         end
         

@@ -21,10 +21,27 @@ Then go to Classifier/SVM and run the `make.m` file to compile `libsvm` with the
 
 ## Step 3
 
+This step is divided between the Semantic Segmentation and Position Estimation pipelines.
+
+### Step 3.1
+
+Semantic Segmentation Pipeline:
+
 In the main folder, edit the `main.m` file flags for your use case.
 All flags are explained whithin the code.
 Then run the project with:
 
 `main`
+
+### Step 3.2
+
+Position Estimation Pipeline:
+
+In the main folder, edit the `semanticSegmentation.m` file flags for your use case.
+All flags are explained whithin the code.
+Then run the project with:
+
+`positionEstimation`
+
 
 Enjoy!
