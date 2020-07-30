@@ -75,8 +75,8 @@ switch n
 %         imshow(BW_Target)
 end
 
-[r1,c1]=size(BW_Target)
-[r2,c2]=size(BW_Template)
+[r1,c1]=size(BW_Target);
+[r2,c2]=size(BW_Template);
 
 BW_Template_mean=BW_Template-mean(mean(BW_Template));
 BW_Target_mean=BW_Target-mean(mean(BW_Target));
