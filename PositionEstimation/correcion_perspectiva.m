@@ -1,4 +1,4 @@
-function [distx, disty, Img1, imout]=correcion_perspectiva(img, yaw, pitch, roll, distz)
+function [distx, disty, Img1, imout, maskout]=correcion_perspectiva(img, mask, yaw, pitch, roll, distz)
 
 [h w] = size(img);
 % distz=300;
@@ -39,6 +39,7 @@ y1 = floor((hr + hp)/2 - yoff);
 x0 = 1 + ceil((wr - wp)/2 + xoff);
 x1 = floor((wr + wp)/2 + xoff);
 imout = imout(y0:y1, x0:x1, :);
+maskout = imwarp(mask,tform,'cubic');
 
 %% Matrix for Yaw-rotation about the Z-axis
 function [R] = R_z(psi)  

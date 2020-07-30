@@ -29,7 +29,7 @@ R_copy = R;
 %% Training Georeferenced Image
 fprintf('\nRunning Semantic Segmentation Pipeline...\n');
 fprintf('\n%s\n', repmat('º', [1 75]));
-[maskGeo, maskIdxGeo, centroidsGeo, classesGeo, parameters] = mainFunc('Images\Train\Mosaicoo.tif', 1);
+[maskGeo, maskIdxGeo, centroidsGeo, classesGeo, parameters] = semanticSegmentation('Images\Train\Mosaicoo.tif', 1);
 fprintf('%s\n', repmat('º', [1 75]));
 fprintf('\n%s\n', repmat('-', [1 100]));
 
@@ -68,7 +68,11 @@ for i=1:length(imageNamesTemp)
     %% Semantic Mask
     fprintf('\nRunning Semantic Segmentation Pipeline...\n');
     fprintf('\n%s\n', repmat('º', [1 75]));
-    [mask, maskIdx, centroids, classes] = mainFunc(outf, i+1, classesGeo, centroidsGeo, parameters);
+    [mask, maskIdx, centroids, classes] = semanticSegmentation(outf, i+1, classesGeo, centroidsGeo, parameters);
+    Lmask = zeros(size(mask));
+    for mx = 1:length(classes)
+        Lmask(mask == mx) = classes(mx);
+    end
     fprintf('%s\n', repmat('º', [1 75]));
 
     %% Preprocessing
@@ -80,9 +84,19 @@ for i=1:length(imageNamesTemp)
     %% Correcting Perspective
     fprintf('\nCorrecting Image Perspective...\n');
     tic;
-    [distx, disty, rotate_img]=correcion_perspectiva(...
-       pre_uav_img, yaw(i), pitch(i), roll(i), alt(i));
-    
+    Lmask = imresize(Lmask, [size(pre_uav_img, 1) size(pre_uav_img, 2)]);
+    [distx, disty, rotate_img, useful_area, rotate_mask]=correcion_perspectiva(...
+       pre_uav_img, Lmask, yaw(i), pitch(i), roll(i), alt(i));
+   
+    % removing residuals based on shortest distance
+    rotate_mask = round(rotate_mask);
+    change = rotate_mask(~ismember(rotate_mask, [0; unique(classes)]));
+    mantain = unique(classes);
+    mantainMatrix = ones(size(change, 1), size(mantain, 1)).*mantain';
+    dists = sqrt((change - mantainMatrix).^2);
+    replace = sum(mantainMatrix.*(dists == min(dists, [], 2)), 2);
+    rotate_mask(~ismember(rotate_mask, [0; unique(classes)])) = replace;
+   
     if printFigs
         figure (3);
         imshowpair(crop_geo_img,rotate_img,'montage');
@@ -100,7 +114,7 @@ for i=1:length(imageNamesTemp)
     fprintf('\nGetting Edges and Correlation...\n');
     tic;
     [yoffSet,xoffSet,Mcorr,centro] = edges_and_correlation(...
-                                      rotate_img, crop_geo_img);
+                                      rotate_img, crop_geo_img, rotate_mask);
     
     centro;
     retorno = Mcorr;
