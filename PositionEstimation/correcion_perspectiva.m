@@ -8,7 +8,7 @@ disty =(300/(tand(90-pitch)));
 % Projection 2D - 3D 
 A1=[1 0 -w/2;
     0 1 -h/2;
-    0 0    0;
+    0 0    1;
     0 0    1];
 
 % Composed rotation matrix with (RX, RY, RZ)
@@ -21,16 +21,15 @@ Tras=[1 0 0 0;
       0 0 0 1];
 
 % 3D -> 2D 
-A2=[650.88   0     w/2   0;
-   0     649.43    h/2 0;
+A2=[distz   0     w/2   0;
+   0     distz    h/2 0;
    0     0      1     0];
 
 H = A2*(Tras*(R_rot*A1));
-
 tform = projective2d(H');
 Img1 = imwarp(img,tform,'bilinear');
 
-[wp, hp, xoff, yoff] = useful_area((5*w/8), (5*h/8), yaw);
+[wp, hp, xoff, yoff] = useful_area(w, h, yaw);
 imout = Img1;
 [hr, wr, ~] = size(imout);
 
