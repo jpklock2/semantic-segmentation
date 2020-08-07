@@ -1,5 +1,4 @@
-
-function [yoffSet, xoffSet, corrMat, centro]=edges_and_correlation(image1,image2,mask)
+function [yoffSet, xoffSet, corrMat, centro]=edges_and_correlation(image1,image2,mask,centroids,classes,parameters)
 
 if size(image1,3)==3
     image1=rgb2gray(image1);
@@ -31,6 +30,11 @@ n = 0;
 histValues = sum(histc(mask, unique(mask)), 2);
 predominance = histValues(2:end)./sum(histValues(2:end));
 sigmaValue = sqrt(2) * (((max(predominance)-0.25)/0.75)*2 + 1);
+centroidsReconstructed = ((parameters.pcaCoeffs(:,1:parameters.pcaN)*centroids')+parameters.pcaMean')';
+textureCentroids = centroidsReconstructed(:, 85:end);
+sigC = 1./(1+exp(-mean(textureCentroids, 2)./(3*mean(std(textureCentroids, [], 2)))));
+sigC = (sigC+1)/2;
+kValue = sum(sigC(unique(classes)).*predominance);
 
 switch n
     case 0

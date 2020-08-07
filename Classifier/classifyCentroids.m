@@ -19,13 +19,13 @@ switch myClassifier
             classesTemp2(i) = classesP(classesTemp2(i));
         end
         classesP = classesTemp2;
-        accuracy = sum(classesP == classes)/length(classes);
-%         accuracy2 = sum(classes == classesP | classes == classesP+1 | classes == classesP-1) / length(classes);
-        predAcc = predominanceAccuracy(classes, classesP);
-        myAccs = [myAccs; accuracy predAcc mean([accuracy predAcc])];
-%         myAccs = [myAccs; accuracy accuracy2 sum(predominance > 0.2) sum(predominance > 0.3) sum(predominance > 0.4) sum(predominance > 0.5)];
-%         fprintf('Accuracy = %.2f%% [%d/%d]\n', 100*accuracy, sum(classesP == classes), length(classes));
         if (myClusters == 0)
+            accuracy = sum(classesP == classes)/length(classes);
+    %         accuracy2 = sum(classes == classesP | classes == classesP+1 | classes == classesP-1) / length(classes);
+            predAcc = predominanceAccuracy(classes, classesP);
+            myAccs = [myAccs; accuracy predAcc mean([accuracy predAcc])];
+    %         myAccs = [myAccs; accuracy accuracy2 sum(predominance > 0.2) sum(predominance > 0.3) sum(predominance > 0.4) sum(predominance > 0.5)];
+    %         fprintf('Accuracy = %.2f%% [%d/%d]\n', 100*accuracy, sum(classesP == classes), length(classes));
             fprintf('Accuracy = %.2f%% [%d/%d]\n', 100*accuracy, sum(classesP == classes), length(classes));
         end
         classes = classesP;
@@ -38,11 +38,11 @@ switch myClassifier
             classesTemp2(i) = classesP(classesTemp2(i));
         end
         classesP = classesTemp2;
-        accuracy = sum(classesP == classes)/length(classes);
-%         accuracy2 = sum(classes == classesP | classes == classesP+1 | classes == classesP-1) / length(classes);
-        predAcc = predominanceAccuracy(classes, classesP);
-        myAccs = [myAccs; accuracy predAcc mean([accuracy predAcc])];
         if (myClusters == 0)
+            accuracy = sum(classesP == classes)/length(classes);
+    %         accuracy2 = sum(classes == classesP | classes == classesP+1 | classes == classesP-1) / length(classes);
+            predAcc = predominanceAccuracy(classes, classesP);
+            myAccs = [myAccs; accuracy predAcc mean([accuracy predAcc])];
             fprintf('Accuracy = %.2f%% [%d/%d]\n', 100*accuracy, sum(classesP == classes), length(classes));
         end
         classes = classesP;
@@ -76,13 +76,13 @@ switch myClassifier
             classesTemp2(i) = classesP(classesTemp2(i));
         end
         classesP = classesTemp2;
-%         accuracy = sum(YsOut == classes | YsOut == classes+1 | YsOut == classes-1) / length(pixels);
-%         accuracy2 = sum(classes == classesP | classes == classesP+1 | classes == classesP-1) / length(classes);
-        accuracy = sum(classes == classesP ) / length(classes);
-        predAcc = predominanceAccuracy(classes, classesP);
-        myAccs = [myAccs; accuracy predAcc mean([accuracy predAcc])];
-%         myAccs = [myAccs; accuracy accuracy2 sum(predominance > 0.2) sum(predominance > 0.3) sum(predominance > 0.4) sum(predominance > 0.5)];
         if (myClusters == 0)
+    %         accuracy = sum(YsOut == classes | YsOut == classes+1 | YsOut == classes-1) / length(pixels);
+    %         accuracy2 = sum(classes == classesP | classes == classesP+1 | classes == classesP-1) / length(classes);
+            accuracy = sum(classes == classesP ) / length(classes);
+            predAcc = predominanceAccuracy(classes, classesP);
+            myAccs = [myAccs; accuracy predAcc mean([accuracy predAcc])];
+    %         myAccs = [myAccs; accuracy accuracy2 sum(predominance > 0.2) sum(predominance > 0.3) sum(predominance > 0.4) sum(predominance > 0.5)];
             fprintf('Accuracy = %.2f%% [%d/%d]\n', 100*accuracy, sum(classesP == classes), length(classes));
         end
         classes = classesP;
@@ -110,11 +110,11 @@ switch myClassifier
             classesTemp2(i) = classesP(classesTemp2(i));
         end
         classesP = classesTemp2;
-        accuracy = sum(classesP == classes)/length(classes);
-%         accuracy2 = sum(classes == classesP | classes == classesP+1 | classes == classesP-1) / length(classes);
-        predAcc = predominanceAccuracy(classes, classesP);
-        myAccs = [myAccs; accuracy predAcc mean([accuracy predAcc])];
         if (myClusters == 0)
+            accuracy = sum(classesP == classes)/length(classes);
+    %         accuracy2 = sum(classes == classesP | classes == classesP+1 | classes == classesP-1) / length(classes);
+            predAcc = predominanceAccuracy(classes, classesP);
+            myAccs = [myAccs; accuracy predAcc mean([accuracy predAcc])];
             fprintf('Accuracy = %.2f%% [%d/%d]\n', 100*accuracy, sum(classesP == classes), length(classes));
         end
         classes = classesP;

@@ -17,7 +17,7 @@ if (m == 1)
     parameters.pcaMean = mu;
     parameters.pcaCoeffs = coeff;
     parameters.pcaN = idxPCA;
-%             pixelsReconstructed = ((coeff(:,1:idx95)*pixelsTemp')+mu')';
+%     pixelsReconstructed = ((parameters.pcaCoeffs(:,1:parameters.pcaN)*pixels')+parameters.pcaMean')';
 else
     pixelBkp = pixels;
     if usePCA == 2

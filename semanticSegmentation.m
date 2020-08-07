@@ -8,9 +8,9 @@ plotsIM = 0; % 0 DON'T PLOT IMAGES | 1 PLOT COLORED SUPERPIXELS
 plotsCompare = 0; % 0 DON'T PLOT IMAGES | 1 PLOT FCM SEGMENTATION
 myFilter = 1; % 0 NO FILTER | 1 BILATERAL | 2 KUWAHARA | 3 ANISIOTROPIC
 myColorSpace = 0; % 0 RGB | 1 HSV | 2 Lab | 3 sRGB
-myFeatureExtractor = 1; % 1 COLOR | 2 LBP | 3 TEXTURE (LM FILTERS) | 4 COLOR+TEXTURE | 7 GLCM | 5 AUTO-ENCODER
+myFeatureExtractor = 4; % 1 COLOR | 2 LBP | 3 TEXTURE (LM FILTERS) | 4 COLOR+TEXTURE | 7 GLCM | 5 AUTO-ENCODER
 myClassifier = 2; % 1 MSE | 2 SVM | 3 CANFIS | 4 COSINE | 5 ALL (COMPARISON)
-myClusters = 0; % 0 MY CLASSES | 1 MY FCM | 2 MATLAB ANFIS
+myClusters = 1; % 0 MY CLASSES | 1 MY FCM | 2 MATLAB ANFIS
 classifyMethod = 1; % 0 SUPERPIXELS | 1 CENTROIDS
 useCropped = 1; % 0 UAV IMAGES | 1 CROPPED IMAGES
 myPreprocess = 0; % 0 NO PREPROCESS | 1 HISTOGRAM MATCHING | 2 HISTOGRAM EQUALIZATION+MATCHING
@@ -33,7 +33,7 @@ applyFilter;
 colorSpace;
 
 %% Segmentando e achando K para superpixels
-[x, y] = size(rgbImage);
+[x, y, ~] = size(rgbImage);
 K = round((x/100) * (y/100));
 if increaseSp
     K = round((x/50) * (y/50));
@@ -44,10 +44,12 @@ superpixelSegmentation;
 
 %% Select super pixels
 loadColors;
-if (m == 1)
-    getClasses;
-else
-    getClassesValidate;
+if myClusters == 0
+    if (m == 1)
+        getClasses;
+    else
+        getClassesValidate;
+    end
 end
 
 %% Extraindo caracteristicas
@@ -60,7 +62,7 @@ if m == 1
     calculaK;
 
     % Temporariamente deixando um valor fixo para agilizar experimentos
-    if (myClusters == 0) 
+    if myClusters == 0
         KF = length(myClasses);
     end
     pixelsOri = pixels;
@@ -99,6 +101,11 @@ if m == 1
 
     if plotsIM && myClassifier ~= 5
         colorSuperpixel;
+        Lmask = zeros(size(L));
+        for mx = 1:length(classes)
+            Lmask(idx{mx}) = classes(mx);
+        end
+        figure; imagesc(Lmask);
     end
 
     % SVM 

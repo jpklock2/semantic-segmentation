@@ -5,7 +5,7 @@ imageNamesTemp = imageNames(2:end);
 %% Reading Logs
 arquivo = fopen('Images\logs.txt');
 temp = textscan(arquivo, '%s %s %s %s %s %s %s', [Inf Inf]);
-fclose(arquivo); 
+fclose(arquivo);
 name=temp{1}; % nombre a
 idx = [];
 for i = 1:length(imageNamesTemp)
@@ -29,7 +29,23 @@ R_copy = R;
 %% Training Georeferenced Image
 fprintf('\nRunning Semantic Segmentation Pipeline...\n');
 fprintf('\n%s\n', repmat('º', [1 75]));
-[maskGeo, maskIdxGeo, centroidsGeo, classesGeo, parameters] = semanticSegmentation('Images\Train\Mosaicoo.tif', 1);
+if exist('geoData2.mat', 'file') == 2
+    fprintf('\nGeoreferenced data found, loading data...\n\n');
+    load('geoData2.mat');
+else
+    [maskGeo, maskIdxGeo, centroidsGeo, classesGeo, parameters] = semanticSegmentation('Images\Train\Mosaicoo.tif', 1);
+%     save geoData.mat maskGeo maskIdxGeo centroidsGeo classesGeo parameters
+end
+
+% colorLmask = zeros(size(maskGeo));
+% for i = 1:length(maskIdxGeo)
+%     colorLmask(maskIdxGeo{i}) = classesGeo(i);
+% end
+% figure; imagesc(colorLmask);
+
+colorSuperpixelFunc(geo_img, classesGeo, maskIdxGeo, parameters);
+% textureAnalysis(parameters, centroidsGeo, maskGeo, maskIdxGeo, classesGeo, geo_img);
+
 fprintf('%s\n', repmat('º', [1 75]));
 fprintf('\n%s\n', repmat('-', [1 100]));
 
@@ -42,7 +58,16 @@ for i=1:length(imageNamesTemp)
     filename1=('Images\Test\Original');
     outf=fullfile(filename1,strtrim(imageNamesTemp{i}));
     uav_img = imread(outf);
-    scale_uav_img = imresize(uav_img, 0.13, 'Bilinear'); %0.21
+    getHomData = 0;
+    if getHomData
+        [movingPoints,fixedPoints] = cpselect(uav_img(end:-1 : 1, end:-1 : 1, :),geo_img,'Wait',true);
+        tform = fitgeotrans(movingPoints,fixedPoints,'projective');
+        load('transformData.mat');
+        scale_uav_img = imresize(uav_img, [round(size(uav_img, 1)*tform.T(1,1)) round(size(uav_img, 2)*tform.T(2,2))]);
+    else
+%         scale_uav_img = imresize(uav_img, 0.13, 'Bilinear'); %0.21
+        scale_uav_img = imresize(uav_img, 0.206944444444444,'box');
+    end
     if printFigs
         figure(1);
         imshow(scale_uav_img);
@@ -73,6 +98,7 @@ for i=1:length(imageNamesTemp)
     for mx = 1:length(classes)
         Lmask(mask == mx) = classes(mx);
     end
+%     figure; imagesc(Lmask);
     fprintf('%s\n', repmat('º', [1 75]));
 
     %% Preprocessing
@@ -112,9 +138,10 @@ for i=1:length(imageNamesTemp)
     
     %% Edges and Correlation
     fprintf('\nGetting Edges and Correlation...\n');
+    
     tic;
     [yoffSet,xoffSet,Mcorr,centro] = edges_and_correlation(...
-                                      rotate_img, crop_geo_img, rotate_mask);
+                                      rotate_img, crop_geo_img, rotate_mask, centroids, classes, parameters);
     
     centro;
     retorno = Mcorr;

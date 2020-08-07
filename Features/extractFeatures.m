@@ -4,37 +4,58 @@ tic;
 % Média dos centróides
     if (myFeatureExtractor == 1 || myFeatureExtractor == 4)
 %         tic;
-        A = rgbImage;
-        A(:,:,4:6) = rgb2hsv(rgbImage);
-        labImage = rgb2lab(rgbImage);
-%         A(:,:,7) = labImage(:,:,1)/100;
-%         A(:,:,8:9) = (labImage(:,:,2:3)+100)/200;
-        A(:,:,7:9) = labImage;
-        A(:,:,10:12) = lin2rgb(rgbImage);
-        A(:,:,13:15) = rgb2ycbcr(rgbImage);
-        ntscImage = rgb2ntsc(rgbImage);
-%         A(:,:,16) = ntscImage(:,:,1);
-%         A(:,:,17) = (ntscImage(:,:,2)+0.5959)/(2*0.5959);
-%         A(:,:,18) = (ntscImage(:,:,3)+0.5229)/(2*0.5229);
-        A(:,:,16:18) = ntscImage;
-        cform = makecform('srgb2cmyk');
-        cymA = applycform(rgbImage, cform); 
-        A(:,:,19:21) = cymA(:,:,1:3);
-        clear cymA labImage ntscImage cform
-%         A(:,:,22) = rgb2gray(rgbImage); % is present in YIQ (NTSC)
-        pixels = zeros(N, size(A, 3)*4);
-        numRows = size(A,1);
-        numCols = size(A,2);
-        for labelVal = 1:N
-            pTemp = [];
-            Idx = idx{labelVal} + (0:size(A, 3)-1)*numRows*numCols;
-            pTemp = [pTemp mean(A(Idx))];
-            pTemp = [pTemp std(A(Idx))];
-            pTemp = [pTemp median(A(Idx))];
-            pTemp = [pTemp mean(A(Idx).^2)];
-            pixels(labelVal, :) = pTemp;
+        pixels = zeros(N, 7*4*3);
+        for t = 1:7
+            switch t
+                case 1
+                    A = rgbImage;
+                case 2
+                    A = rgb2hsv(rgbImage);
+                case 3
+                    A = rgb2lab(rgbImage);
+                case 4
+                    A = lin2rgb(rgbImage);
+                case 5
+                    A = rgb2ycbcr(rgbImage);
+                case 6
+                    A = rgb2ntsc(rgbImage);
+                case 7
+                    cform = makecform('srgb2cmyk');
+                    cymA = applycform(rgbImage, cform); 
+                    A = cymA(:,:,1:3);
+            end
+%             A(:,:,4:6) = rgb2hsv(rgbImage);
+    %         labImage = rgb2lab(rgbImage);
+    %         A(:,:,7) = labImage(:,:,1)/100;
+    %         A(:,:,8:9) = (labImage(:,:,2:3)+100)/200;
+%             A(:,:,7:9) = rgb2lab(rgbImage);
+%             A(:,:,10:12) = lin2rgb(rgbImage);
+    %         A(:,:,13:15) = rgb2ycbcr(rgbImage);
+    %         ntscImage = rgb2ntsc(rgbImage);
+    %         A(:,:,16) = ntscImage(:,:,1);
+    %         A(:,:,17) = (ntscImage(:,:,2)+0.5959)/(2*0.5959);
+    %         A(:,:,18) = (ntscImage(:,:,3)+0.5229)/(2*0.5229);
+    %         A(:,:,16:18) = rgb2ntsc(rgbImage);
+%             cform = makecform('srgb2cmyk');
+%             cymA = applycform(rgbImage, cform); 
+%             A(:,:,19:21) = cymA(:,:,1:3);
+            clear cymA labImage ntscImage cform
+    %         A(:,:,22) = rgb2gray(rgbImage); % is present in YIQ (NTSC)
+%             pixels = zeros(N, size(A, 3)*4);
+            numRows = size(A,1);
+            numCols = size(A,2);
+            for labelVal = 1:N
+                pTemp = [];
+                Idx = idx{labelVal} + (0:size(A, 3)-1)*numRows*numCols;
+                pTemp = [pTemp mean(A(Idx))];
+                pTemp = [pTemp std(A(Idx))];
+                pTemp = [pTemp median(A(Idx))];
+                pTemp = [pTemp mean(A(Idx).^2)];
+%                 pixels(labelVal, :) = pTemp;
+                pixels(labelVal, ((t-1)*12)+(1:12)) = pTemp;
+            end
+            clear A
         end
-        clear A
 %         toc;
     end
 
@@ -167,6 +188,8 @@ tic;
                 end
                 colorCnt = colorCnt+filtCnt;
             end
+            
+            clear A fA fAold gradfA
                 
 %                 for labelVal = 1:N
 %                     [row,col] = find(L == labelVal);
