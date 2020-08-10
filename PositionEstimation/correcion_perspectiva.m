@@ -1,7 +1,7 @@
-function [distx, disty, Img1, imout]=correcion_perspectiva(img, yaw, pitch, roll, distz)
+function [img, util_img]=correcion_perspectiva(img, yaw, pitch, roll, distz)
 
-[h w] = size(img)
-% distz=300;
+[h, w,~] = size(img);
+
 distx =(300/(tand(90-roll)));
 disty =(300/(tand(90-pitch)));
 
@@ -27,17 +27,17 @@ A2=[distz   0     w/2   0;
 
 H = A2*(Tras*(R_rot*A1));
 tform = projective2d(H');
-Img1 = imwarp(img,tform,'bilinear');
+img = imwarp(img,tform,'bilinear');
 
 [wp, hp, xoff, yoff] = useful_area(w, h, yaw);
-imout = Img1;
-[hr, wr, ~] = size(imout);
+util_img = img;
+[hr, wr, ~] = size(util_img);
 
 y0 = 1 + ceil((hr - hp)/2 - yoff);
 y1 = floor((hr + hp)/2 - yoff);
 x0 = 1 + ceil((wr - wp)/2 + xoff);
 x1 = floor((wr + wp)/2 + xoff);
-imout = imout(y0:y1, x0:x1, :);
+util_img = util_img(y0:y1, x0:x1, :);
 
 %% Matrix for Yaw-rotation about the Z-axis
 function [R] = R_z(psi)  
@@ -86,12 +86,6 @@ cos2th = c*c - s*s;
 gamma = NaN;
 delta = NaN;
 fourpt = false;
-% switch on aspect ratio spec to find either:
-%   delta: (delta+1)/2 is the fraction of the distance along the long side
-%   of the rotated rectangle, starting at bottom left, at which an output
-%   corner touches it; or
-%   gamma: (gamma+1)/2 is the fraction of the distance along the short side
-%   starting at bottom right, at which an output corner touches it.
  
 if sin2th < r           % four contact is max area solution?
     fourpt = true;
