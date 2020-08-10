@@ -26,7 +26,7 @@ accCombined = [];
 %     case 2
         % SVM
 %         addpath('E:\PJ\libsvm-3.24\matlab');
-        [classesP, accuracy, prob_estimates] = svmpredict(classes, pixels, model, '-q');
+        [classesP, accuracy, prob_estimates] = svmpredict(classes, pixels, parameters.model, '-q');
 %         myAccs = [myAccs; accuracy(1)];
         accuracy = sum(classes == classesP ) / length(classes);
 %         accuracy2 = sum(classes == classesP | classes == classesP+1 | classes == classesP-1) / length(classes);
@@ -45,7 +45,7 @@ accCombined = [];
         YsOut = zeros(length(classes), 1);
         for k=1:length(classes)
             for o=1:nO
-                [YsOut(k, o),y,w,b] = saida(pixels(k,:),pi(:,:,o),qi,sig,cent,nRe,nMf,1);
+                [YsOut(k, o),y,w,b] = saida(pixels(k,:),parameters.p(:,:,o),parameters.q,parameters.s,parameters.c,nRe,nMf,1);
             end
             YsOut(k,:) = softmax(YsOut(k,:)')';
         end

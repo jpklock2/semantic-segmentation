@@ -25,7 +25,7 @@ accCombined = [accCombined accuracy predAcc mean([accuracy predAcc])];
 
 %     case 2
 % SVM
-[classesP, accuracy, prob_estimates] = svmpredict(rand([size(centroids, 1) 1]), centroids, model, '-q');
+[classesP, accuracy, prob_estimates] = svmpredict(rand([size(centroids, 1) 1]), centroids, parameters.model, '-q');
 classesTemp2 = classesTemp;
 for i = 1:length(pixels)
     classesTemp2(i) = classesP(classesTemp2(i));
@@ -44,7 +44,7 @@ nMf=length(pixelsOri(1,:));
 YsOut = zeros(size(centroids, 1), 1);
 for k=1:size(centroids, 1)
     for o=1:nO
-        [YsOut(k, o),y,w,b] = saida(centroids(k,:),pi(:,:,o),qi,sig,cent,nRe,nMf,1);
+        [YsOut(k, o),y,w,b] = saida(centroids(k,:),parameters.p(:,:,o),parameters.q,parameters.s,parameters.c,nRe,nMf,1);
     end
 end
 [~, idxC] = sort(YsOut, 2);

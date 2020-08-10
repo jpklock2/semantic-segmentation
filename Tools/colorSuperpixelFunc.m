@@ -1,11 +1,7 @@
-% separa pixels
-if isHSV
-    rgbImage = hsv2rgb(rgbImage);
-end
-if isLab
-    rgbImage = lab2rgb(rgbImage,'Out','double');
-end
-outputImage = zeros(size(rgbImage),'like',rgbImage);
+function colorSuperpixelFunc(rgbImage, classes, idx, parameters)
+
+N = length(classes);
+outputImage = zeros(size(rgbImage),'like',double(rgbImage));
 numRows = size(outputImage,1);
 numCols = size(outputImage,2);
 for labelVal = 1:N
@@ -16,5 +12,6 @@ for labelVal = 1:N
     outputImage(greenIdx) = parameters.meanGreen(classes(labelVal));
     outputImage(blueIdx) = parameters.meanBlue(classes(labelVal));
 end
-% figure; imshow(outputImage);
-figure; montage({rgbImage,outputImage})
+figure; montage({rgbImage,outputImage});
+
+end

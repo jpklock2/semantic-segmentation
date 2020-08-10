@@ -48,6 +48,8 @@ if combine
     myClasses = myClasses(1:4);
 end
 
+clear L2
+
 idx = label2idx(L);
 BW = boundarymask(L);
 allC = 1:N;

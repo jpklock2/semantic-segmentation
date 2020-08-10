@@ -37,6 +37,7 @@ y0 = 1 + ceil((hr - hp)/2 - yoff);
 y1 = floor((hr + hp)/2 - yoff);
 x0 = 1 + ceil((wr - wp)/2 + xoff);
 x1 = floor((wr + wp)/2 + xoff);
+
 util_img = util_img(y0:y1, x0:x1, :);
 
 %% Matrix for Yaw-rotation about the Z-axis

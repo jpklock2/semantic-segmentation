@@ -34,3 +34,6 @@ for c = 1:KF
      meanGreen = [meanGreen; mean(rgbImage(greenIdx))];
      meanBlue = [meanBlue; mean(rgbImage(blueIdx))];
 end
+parameters.meanRed = meanRed;
+parameters.meanGreen = meanGreen;
+parameters.meanBlue = meanBlue;
