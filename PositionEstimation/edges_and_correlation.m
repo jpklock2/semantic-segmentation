@@ -49,10 +49,12 @@ switch n
         [~, threshOut1] = edge(Template_filt, filtro, [], sigmaValue);
         [~, threshOut2] = edge(Target_filt, filtro, [], sigmaValue);
         k = 0.70;
+
         BW_Template = edge(Template_filt, filtro, k*threshOut1, sigmaValue);
         BW_Target = edge(Target_filt, filtro, k*threshOut2, sigmaValue);
         BW_Mask = edge(mask, filtro, k*threshOut1, sigmaValue);
         BW_Template = BW_Template | BW_Mask;
+
 %         figure(7)
 %         imshow(BW_Template)
 %         figure(8)
@@ -90,38 +92,38 @@ end
 
 BW_Template_mean=BW_Template-mean(mean(BW_Template));
 BW_Target_mean=BW_Target-mean(mean(BW_Target));
-% image22=Template;
-% Nimage1=Target;
 
+
+% figure (81);
+% imshowpair(BW_Target_mean,BW_Template_mean,'montage');
+    
 % corrMat = normxcorr2(image22,Nimage1);
 corrMat = xcorr2(BW_Target_mean,BW_Template_mean);
 
-% figure(9)
-% mesh(corrMat);
+figure(9)
+mesh(corrMat);
 
-%[r3,c3]=max(max(corrMat))
 [r3, c3] = find(corrMat==max(corrMat(:)));
 ypeak=r3;
 xpeak=c3;
 yoffSet = ypeak-size(Template,1);
 xoffSet = xpeak-size(Template,2);
+
 [r,c]=max(corrMat);
 
 i=c(c3);
 j=c3;
 
-
-[ssr,snd] = max(corrMat(:));
-[ij,ji] = ind2sub(size(corrMat),snd);
-
+% [ssr,snd] = max(corrMat(:));
+% [ij,ji] = ind2sub(size(corrMat),snd);
 
 ptCenterX = floor(i - (r2/2));
 ptCenterY = floor(j - (c2/2));
 
-% hFig = figure(55);
-% hAx  = axes;
-% imshow(Target,'Parent', hAx);
-% imrect(hAx, [xoffSet, yoffSet, size(Template,2), size(Template,1)]);
+hFig = figure(55);
+hAx  = axes;
+imshow(Target,'Parent', hAx);
+imrect(hAx, [xoffSet, yoffSet, size(Template,2), size(Template,1)]);
 
 centro = [ptCenterX ptCenterY];
 end

@@ -13,7 +13,7 @@ if hab==0
     [lat_r,lon_r]=latlon2pix(R,lat_req,lon_req);
 end
 if hab==1
-    [lat_r,lon_r]=map2pix(R,lat_req,lon_req);
+    [lat_r,lon_r]=map2pix(R,lon_req,lat_req);
 end
 
 %adiciona um erro para simular o sensor inercial
@@ -53,5 +53,6 @@ if ( final_y > tam_img(2) )
 end
 
 geo_img=X(inicio_x:final_x, inicio_y:final_y,:);
+[R(3,2),R(3,1)]=pix2latlon(R,inicio_x,inicio_y);
+% [R(3,2),R(3,1)]=pix2map(R,inicio_x,inicio_y);
 
-[R(3,2),R(3,1)]=pix2map(R,inicio_x,inicio_y);
