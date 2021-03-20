@@ -46,6 +46,7 @@ for k=1:size(centroids, 1)
     for o=1:nO
         [YsOut(k, o),y,w,b] = saida(centroids(k,:),parameters.p(:,:,o),parameters.q,parameters.s,parameters.c,nRe,nMf,1);
     end
+    YsOut(k,:) = softmax(YsOut(k,:)')';
 end
 [~, idxC] = sort(YsOut, 2);
 classesP = idxC(:, end);

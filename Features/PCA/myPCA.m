@@ -1,6 +1,8 @@
 if usePCA == 1 || usePCA == 2
-    
+
+if printResults
 fprintf('\nApplying PCA...\n');
+end
 tic;
 if (m == 1)
     pixelBkpOri = pixels;
@@ -12,11 +14,14 @@ if (m == 1)
         idxPCA = idxPCA + 1;
         sum_explained = sum_explained + explained(idxPCA);
     end
+    if printResults
     fprintf('Number of PCA componentes for %d features and %d%% of variance: %d\n', size(pixelBkpOri,2), myVariance, idxPCA);
+    end
     pixels = (coeff(:,1:idxPCA)'*(pixels-mu)')';
     parameters.pcaMean = mu;
     parameters.pcaCoeffs = coeff;
     parameters.pcaN = idxPCA;
+    parameters.pcaExp = explained;
 %     pixelsReconstructed = ((parameters.pcaCoeffs(:,1:parameters.pcaN)*pixels')+parameters.pcaMean')';
 else
     pixelBkp = pixels;
@@ -27,6 +32,8 @@ else
         pixels = (parameters.pcaCoeffs(:,1:parameters.pcaN)'*(pixels-parameters.pcaMean)')';
     end
 end
+if printResults
 fprintf('Execution time for applying PCA: %f s\n', toc);
+end
 
 end

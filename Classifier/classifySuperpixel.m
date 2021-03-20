@@ -1,3 +1,4 @@
+classes = zeros(size(pixels, 1), 1);
 switch myClassifier
 
     case 1

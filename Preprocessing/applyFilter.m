@@ -1,15 +1,23 @@
+if printResults
 fprintf('\nApplying filter...\n');
+end
 tic; 
 switch myFilter
 
      % Original
-     case 0
+     case 1
          % do nothing
 
      % Bilateral
-     case 1
+     case 3
         labImage = rgb2lab(rgbImage);
-        patch = imcrop(labImage,[34,71,60,55]);
+        minRow = std(labImage(:,:,1), [], 2);
+        minRowIdx = find(minRow == min(minRow), 1);
+        minCol = std(labImage(:,:,1));
+        minColIdx = find(minCol == min(minCol), 1);
+        square = [max(1, minColIdx-25) max(1, minRowIdx-25) min(size(rgbImage, 2), minColIdx+25) min(size(rgbImage, 1), minRowIdx+25)];
+        squareCrop = [square(1) square(2) square(3)-square(1) square(4)-square(2)];
+        patch = imcrop(labImage,squareCrop);
         patchSq = patch.^2;
         edist = sqrt(sum(patchSq,3));
         patchVar = std2(edist).^2;
@@ -24,7 +32,7 @@ switch myFilter
      case 2
          hsvImage = rgb2hsv(rgbImage);
 %              grayImage = rgb2gray(rgbImage);
-        k = 2;
+        k = 2; % 5, 9, 13, ... = (4*k+1)
          kuwaImg = Kuwahara(hsvImage(:,:,3),4*k+1);
          hsvImage(:,:,3) = kuwaImg;
          kuwaImg = hsv2rgb(hsvImage);
@@ -32,16 +40,17 @@ switch myFilter
 %             figure; montage({rgbImage,kuwaImg});
 %              figure; imshow(kuwaImg);
         rgbImage = kuwaImg;
-
+        clear hsvImage kuwaImg
  % Anisiotropica
-     case 3
+     case 5
 %              grayImage = rgb2gray(rgbImage);
         hsvImage = rgb2hsv(rgbImage);
-%         [gradThresh,numIter] = imdiffuseest(hsvImage(:,:,3),'ConductionMethod','exponential');
-        gradThresh = [0.1098 0.0863 0.0706 0.0627 0.0549];
-        numIter = 5;
-        diffImg = imdiffusefilt(hsvImage(:,:,3),'ConductionMethod','exponential', ...
-        'GradientThreshold',gradThresh,'NumberOfIterations',numIter);
+%         [gradThresh,numIter] = imdiffuseest(hsvImage(:,:,3));
+%         gradThresh = [0.1098 0.0863 0.0706 0.0627 0.0549];
+%         numIter = 5;
+%         diffImg = imdiffusefilt(hsvImage(:,:,3), ...
+%         'GradientThreshold',gradThresh,'NumberOfIterations',numIter);
+        diffImg = imdiffusefilt(hsvImage(:,:,3),'NumberOfIterations',15);
 %              diffImg = imdiffusefilt(hsvImage(:,:,3));
          hsvImage(:,:,3) = diffImg;
          diffImg = hsv2rgb(hsvImage);
@@ -49,6 +58,22 @@ switch myFilter
 %             figure; montage({rgbImage,diffImg});
 %              figure; imshow(diffImg);
         rgbImage = diffImg;
+        clear diffImg hsvImage
+        
+    case 4
+    % Mínimos Quadrados
+%         rgbTemp = rgbImage;
+        lambda = 3;
+        iter = 8;
+        p = 0.5;
+        eps = 0.0001;
+        lsqImage = double(ILS_LNorm(rgbImage, lambda, p, eps, iter));
+%         figure; montage({rgbImage, lsqImage, kuwaImg, diffImg});
+        rgbImage = lsqImage;
+        clear lsqImage
+%         figure; montage({rgbTemp,rgbImage});
 
 end
+if printResults
 fprintf('Execution time for applying filter: %f s\n', toc);
+end

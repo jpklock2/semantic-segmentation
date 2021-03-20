@@ -1,4 +1,4 @@
-function [img, util_img]=correcion_perspectiva(img, yaw, pitch, roll, distz)
+function [img, util_img, Lmask, util_Lmask, mask, utilCropSize, currImg, currPlotImage, currSegmentation]=correcion_perspectiva(img, yaw, pitch, roll, distz, Lmask, mask, currImg, currPlotImage, currSegmentation)
 
 [h, w,~] = size(img);
 
@@ -28,17 +28,161 @@ A2=[distz   0     w/2   0;
 H = A2*(Tras*(R_rot*A1));
 tform = projective2d(H');
 img = imwarp(img,tform,'bilinear');
+if exist('Lmask','var')
+    Lmask = imwarp(Lmask,tform,'bilinear');
+    mask = imwarp(mask,tform,'bilinear');
+    currImg = imwarp(currImg,tform,'bilinear');
+    currSegmentation = imwarp(currSegmentation,tform,'bilinear');
+    currPlotImage = imwarp(currPlotImage,tform,'bilinear');
+end
+
+theta = atan2(tform.T(2,1), tform.T(2,2)) * 180 / pi;
+
+% figure; imshow(currImg);
+% hold on;
+% boxin.width = size(img, 2);
+% boxin.height = size(img, 1);
+% boxout = imRotateCrop(boxin, theta, 'AspectRatio', 'maxArea', 'Position', 0);
+% xcentre = (1+size(currImg, 2))/2 + boxout.xshift;
+% ycentre = (1+size(currImg, 1))/2 + boxout.yshift;
+% w2 = boxout.width/2;
+% h2 = boxout.height/2;
+% xcrds = xcentre + [w2 w2 -w2 -w2 w2];   % box corner coords
+% ycrds = ycentre + [h2 -h2 -h2 h2 h2];
+% hold on;
+% plot(xcrds, ycrds, 'g-', 'LineWidth', 3);
+
+
+[h1, w1, ~] = size(currImg);
+w2 = w1/2;
+h2 = h1/2;
+
+dg = sqrt(w2^2 + h2^2);
+angInc = asin(h2/dg)*180/pi;
+xc = (1+w1)/2;
+yc = (1+h1)/2;
+
+% diffH = 0;
+% diffW = 0;
+
+diffH = h1 - h;
+diffW = w1 - w;
+
+c1 = polyfit([xc w1-diffW], [yc 1+diffH], 1);
+yc1 = round(linspace(xc, w1, floor(0.95*dg)));
+yc1 = c1(1)*yc1 + c1(2);
+
+c2 = polyfit([xc 1+diffW], [yc 1+diffH], 1);
+yc2 = round(linspace(xc, 1, floor(0.95*dg)));
+yc2 = c2(1)*yc2 + c2(2);
+
+hi = round(yc1(end));
+
+c3 = polyfit([xc 1+diffW], [yc h1-diffH], 1);
+yc3 = round(linspace(xc, 1, floor(0.99*dg)));
+yc3 = c3(1)*yc3 + c3(2);
+
+c4 = polyfit([xc w1-diffW], [yc h1-diffH], 1);
+yc4 = round(linspace(xc, w1, floor(0.99*dg)));
+yc4 = c4(1)*yc4 + c4(2);
+
+hf = round(yc3(end));
+
+diffW = 0;
+
+% l1 = line([xc w1-diffW], [yc hi],'Color','red','LineWidth', 3);
+% l2 = line([xc 1+diffW], [yc hi],'Color','red','LineWidth', 3);
+% l3 = line([xc 1+diffW], [yc hf],'Color','red','LineWidth', 3);
+% l4 = line([xc w1-diffW], [yc hf],'Color','red','LineWidth', 3);
+
+xd1 = round(linspace(xc, w1-diffW, floor(0.99*dg)));
+yd1 = round(linspace(yc, hi, floor(0.99*dg)));
+
+xd2 = round(linspace(xc, 1+diffW, floor(0.99*dg)));
+yd2 = round(linspace(yc, hi, floor(0.99*dg)));
+
+xd3 = round(linspace(xc, 1+diffW, floor(0.99*dg)));
+yd3 = round(linspace(yc, hf, floor(0.99*dg)));
+
+xd4 = round(linspace(xc, w1-diffW, floor(0.99*dg)));
+yd4 = round(linspace(yc, hf, floor(0.99*dg)));
+
+flagQ1 = 0; flagQ2 = 0; flagQ3 = 0; flagQ4 = 0;
+for i = 1:length(xd1)
+    if all(currImg(yd1(i), xd1(i), :) == 0) && ~flagQ1
+        q1 = [xd1(i) yd1(i)];
+        flagQ1 = 1;
+    end
+    
+    if all(currImg(yd2(i), xd2(i), :) == 0) && ~flagQ2
+        q2 = [xd2(i) yd2(i)];
+        flagQ2 = 1;
+    end
+    
+    if all(currImg(yd3(i), xd3(i), :) == 0) && ~flagQ3
+        q3 = [xd3(i) yd3(i)];
+        flagQ3 = 1;
+    end
+    
+    if all(currImg(yd4(i), xd4(i), :) == 0) && ~flagQ4
+        q4 = [xd4(i) yd4(i)];
+        flagQ4 = 1;
+    end
+end
+
+if flagQ1 == 0
+    q1 = [w1-diffW hi];
+end
+
+if flagQ2 == 0
+    q2 = [1+diffW hi];
+end
+
+if flagQ3 == 0
+    q3 = [1+diffW hf];
+end
+
+if flagQ4 == 0
+    q4 = [w1-diffW hf];
+end
+
+y0 = max(q1(2), q2(2));
+y1 = min(q3(2), q4(2));
+x0 = max(q2(1), q3(1));
+x1 = min(q1(1), q4(1));
+
+xcrds = [x0 x0 x1 x1 x0];
+ycrds = [y0 y1 y1 y0 y0];
+% plot(xcrds, ycrds, 'b-', 'LineWidth', 3);
+
+util_img = img;
 
 [wp, hp, xoff, yoff] = useful_area(w, h, yaw);
-util_img = img;
 [hr, wr, ~] = size(util_img);
+y0old = 1 + ceil((hr - hp)/2 - yoff);
+y1old = floor((hr + hp)/2 - yoff);
+x0old = 1 + ceil((wr - wp)/2 + xoff);
+x1old = floor((wr + wp)/2 + xoff);
+xcrdsOld = [x0old x0old x1old x1old x0old];
+ycrdsOld = [y0old y1old y1old y0old y0old];
+% plot(xcrdsOld, ycrdsOld, 'g-');
 
-y0 = 1 + ceil((hr - hp)/2 - yoff);
-y1 = floor((hr + hp)/2 - yoff);
-x0 = 1 + ceil((wr - wp)/2 + xoff);
-x1 = floor((wr + wp)/2 + xoff);
+[wp, hp, xoff, yoff] = useful_area(w, h, theta);
+[hr, wr, ~] = size(util_img);
+y0old = 1 + ceil((hr - hp)/2 - yoff);
+y1old = floor((hr + hp)/2 - yoff);
+x0old = 1 + ceil((wr - wp)/2 + xoff);
+x1old = floor((wr + wp)/2 + xoff);
+xcrdsOld = [x0old x0old x1old x1old x0old];
+ycrdsOld = [y0old y1old y1old y0old y0old];
+% plot(xcrdsOld, ycrdsOld, 'b-');
 
+utilCropSize = [y0 x0 y1 x1];
 util_img = util_img(y0:y1, x0:x1, :);
+if exist('Lmask','var')
+    util_Lmask = Lmask(y0:y1, x0:x1, :);
+%     util_mask = mask(y0:y1, x0:x1, :);
+end
 
 %% Matrix for Yaw-rotation about the Z-axis
 function [R] = R_z(psi)  

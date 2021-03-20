@@ -4,12 +4,22 @@ tic;
 if (bestK == 0)
     tic;
     jotas = [];
-    for k=2:30
-        [~, Utemp, J, centroids] = MyFuzzyMeans_opt(pixels, k);
-        [~, idx2] = sort(Utemp, 2);
-        jotas = [jotas; J(end)];
+    for k = 2:30
+        jotasInd = [];
+        for k2 = 1:10
+            [~, ~, Jc, ~] = MyFuzzyMeans_opt(pixels, k);
+            jotasInd = [jotasInd; Jc(end)];
+%         [~, Utemp, J, centroids] = MyFuzzyMeans_opt(pixels, k);
+%         [~, idx2] = sort(Utemp, 2);
+%         jotas = [jotas; J(end)];
+        end
+        jotas = [jotas; median(jotasInd)];
     end
     KF = knee_pt(jotas)+2;
+    if KF <= 0
+        KF = 1;
+    end
+%     KF = knee_pt(jotas)+2;
 
 %     if plotsIM
 %         [outputImage] = evalFunction(pixels, KF, idx, A, N);

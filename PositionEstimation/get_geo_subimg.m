@@ -1,5 +1,5 @@
-function [geo_img,cmap,R,bbox]=get_geo_subimg(...
-    lat_req, lon_req, tamx, tamy, X, cmap, R, bbox, hab)
+function [geo_img,cmap,R,bbox,geo_mask,cropSize]=get_geo_subimg(...
+    lat_req, lon_req, tamx, tamy, X, cmap, R, bbox, hab, mask)
 
 % geo_img       - imagem do banco de dados recortada com base na lat,lon.
 % cmap          - mapa de cores
@@ -17,8 +17,10 @@ if hab==1
 end
 
 %adiciona um erro para simular o sensor inercial
-rand_x = (randi([-round(tamx/4) round(tamx/4)],1,1));
-rand_y = (randi([-round(tamy/4) round(tamy/4)],1,1));
+% rand_x = (randi([-round(tamx/4) round(tamx/4)],1,1));
+% rand_y = (randi([-round(tamy/4) round(tamy/4)],1,1));
+rand_x = 0;
+rand_y = 0;
 
 lat_r=round(lat_r) + rand_x;
 lon_r=round(lon_r) + rand_y;
@@ -53,6 +55,8 @@ if ( final_y > tam_img(2) )
 end
 
 geo_img=X(inicio_x:final_x, inicio_y:final_y,:);
+geo_mask = mask(inicio_x:final_x, inicio_y:final_y,:);
 [R(3,2),R(3,1)]=pix2latlon(R,inicio_x,inicio_y);
+cropSize = [inicio_x inicio_y final_x final_y];
 % [R(3,2),R(3,1)]=pix2map(R,inicio_x,inicio_y);
 

@@ -1,10 +1,14 @@
 isHSV = 0;
 isLab = 0;
+if printResults
 fprintf('\nChanging color space...\n');
+end
 tic;
 switch myColorSpace
     case 0
+        if printResults
         fprintf('Color space did not change, using RGB\n');
+        end
         % do nothing
     case 1
         
@@ -35,4 +39,6 @@ switch myColorSpace
 %             title('sRGB Image')
 %         end
 end
+if printResults
 fprintf('Execution time for changing color space: %f s\n', toc);
+end

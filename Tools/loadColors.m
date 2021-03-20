@@ -21,7 +21,44 @@ myColors = [snow; yellow; orange; red; pink; ...
             chartreuse; tortilla; mint; hotpink]; %; ...
             % silver; artic];
         
-myColorsNmes = {'snow'; 'yellow'; 'orange'; 'red'; 'pink'; ...
+myColorsNames = {'snow'; 'yellow'; 'orange'; 'red'; 'pink'; ...
                 'purple'; 'blue'; 'green'; 'brown'; 'grey'; ...
                 'chartreuse'; 'tortilla'; 'mint'; 'hotpink'}; %; ...
                 % 'silver'; 'artic'};
+
+% myColorsClasses = {'Light Grass'; 'Common Grass'; 'Dark Grass'; 'Light Forest'; 'Dark Forest'; ...
+%                 'Gray Soil'; 'Grey Earth'; 'Brown Earth'; 'Little Foliage'; 'Asphalt Road'; ...
+%                 'Earth Road'; 'Grey Forest'; 'River'; 'Stone'}; %; ...
+%                 
+% fig = figure; hold on;
+% x1 = [1:5 5*ones(1, 3) 5:-1:1 ones(1, 3)];
+% y1 = [6*ones(1, 5) 7:9 10*ones(1, 5) 9:-1:7];
+% xpos = 3;
+% ypos = 10.5;
+% for cor = 1:14
+%     fill(x1, y1, myColors(cor, :));
+%     x1 = x1+5;
+%     text(xpos, ypos, [num2str(cor) ' - ' myColorsClasses{cor}], 'FontSize', 18, 'HorizontalAlignment', 'center');
+%     xpos = xpos+5;
+%     if cor == 7
+%         x1 = [1:5 5*ones(1, 3) 5:-1:1 ones(1, 3)];
+%         y1 = y1-5;
+%         xpos = 3;
+%         ypos = ypos-5;
+%     end
+% end
+% axis([0 36 0 11]);
+% 
+% set(gca,'xtick',[])
+% set(gca,'xticklabel',[])
+% set(gca,'ytick',[])
+% set(gca,'yticklabel',[])
+% ax = gca;
+% ax.Visible = 'off';
+% 
+% set(fig,'Units','Inches');
+% pos = get(fig,'Position');
+% set(fig,'PaperPositionMode','Auto','PaperUnits','Inches','PaperSize',[pos(3), pos(4)])
+% print(fig,'D:\TCC\TCC\figs\colors.pdf','-dpdf','-r0');
+% 
+% dbg = 1;

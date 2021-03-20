@@ -7,7 +7,8 @@
  % obtem a imagem RGB, altera seu tamanho e mostra a imagem original (rows x cols x bands)
  currentImage = strtrim(imageNames{m});   
  rgbImageTemp = imread(currentImage); % im2double() - converte pixels para double
- rgbImage = imresize(rgbImageTemp,0.25,'box'); % diminui o tamanho da imagem para diminuir os calculos
+ rgbImage = imresize(rgbImageTemp,0.25); % diminui o tamanho da imagem para diminuir os calculos
+ originalRgbImage = rgbImage;
 %  [L,Centers] = imsegkmeans(rgbImage,7);
 %  B = labeloverlay(rgbImage,L);
 %  figure; imshow(B);
@@ -32,11 +33,13 @@
  rgbImage = im2double(rgbImage);
  if (useCropped && m ~=  1)
      rgbImage2 = rgbImage;
-     currentImageCrop = ['./Images/Test/Cropped/cropped_image_' num2str(m) '.JPG'];
+     [~, currImgName] = fileparts(currentImage);
+     currentImageCrop = ['./Images/Test/Cropped/ComEqualizacao/cropped_image_' pad(num2str(m), 2, 'left', '0') '_' currImgName '.JPG'];
      rgbImageTempCrop = im2double(imread(currentImageCrop));
      rgbImageCrop = imresize(rgbImageTempCrop, size(rgbImage(:,:,1)));
      rgbImage = rgbImageCrop;
      rgbImageCrop = rgbImage2;
+     originalRgbImage = rgbImage;
      clear rgbImage2;
  end
  fprintf('Execution time for reading image: %f s\n', toc);

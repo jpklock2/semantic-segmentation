@@ -1,11 +1,46 @@
 % switch myFeatureExtractor
+if printResults
 fprintf('\nExtracting features...\n');
+end
+
+% Extracting superpixels centroids and adjacency matrix
+% tic;
+numRows = size(L,1);
+numCols = size(L,2);
+superPixels = cell(1, N);
+totalAdj = 0;
+for labelVal = 1:N
+    [y, x] = find(L == labelVal);
+    superPixels{labelVal}.centX = round(mean(x));
+    superPixels{labelVal}.centY = round(mean(y));
+    superPixels{labelVal}.sizeX = max(x)-min(x);
+    superPixels{labelVal}.sizeY = max(y)-min(y);
+    nX = min(x+1, numCols);
+    nY = min(y+1, numRows);
+    pX = max(x-1, 1);
+    pY = max(y-1, 1);
+    adjacents = zeros(length(x), 4);
+    adjacents(:, 1) = L(sub2ind(size(L), y, nX));
+    adjacents(:, 2) = L(sub2ind(size(L), nY, x));
+    adjacents(:, 3) = L(sub2ind(size(L), y, pX));
+    adjacents(:, 4) = L(sub2ind(size(L), pY, x));
+    uniAdjs = unique(adjacents);
+    uniAdjs = uniAdjs(uniAdjs > labelVal);
+    totalAdj = totalAdj + length(uniAdjs);
+    superPixels{labelVal}.adj = uniAdjs;
+end
+% toc
+dgb = 1;
+
 tic;
 % Média dos centróides
     if (myFeatureExtractor == 1 || myFeatureExtractor == 4)
 %         tic;
-        pixels = zeros(N, 7*4*3);
-        for t = 1:7
+        nColors = 3;
+        nFts = 5;
+        nSpaces = 7;
+        pixels = zeros(N, nSpaces*nFts*nColors);
+        for t = 1:nSpaces
             switch t
                 case 1
                     A = rgbImage;
@@ -44,6 +79,8 @@ tic;
 %             pixels = zeros(N, size(A, 3)*4);
             numRows = size(A,1);
             numCols = size(A,2);
+            gradA = gradient(A);
+            
             for labelVal = 1:N
                 pTemp = [];
                 Idx = idx{labelVal} + (0:size(A, 3)-1)*numRows*numCols;
@@ -51,13 +88,16 @@ tic;
                 pTemp = [pTemp std(A(Idx))];
                 pTemp = [pTemp median(A(Idx))];
                 pTemp = [pTemp mean(A(Idx).^2)];
+                pTemp = [pTemp mean(gradA(Idx))];
 %                 pixels(labelVal, :) = pTemp;
-                pixels(labelVal, ((t-1)*12)+(1:12)) = pTemp;
+                pixels(labelVal, ((t-1)*(nFts*nColors))+(1:(nFts*nColors))) = pTemp;
             end
-            clear A
+            clear A gradA
         end
 %         toc;
     end
+    
+pixelsOwn = pixels;
 
 % LBP
     if (myFeatureExtractor == 2)
@@ -149,6 +189,7 @@ tic;
     if (myFeatureExtractor == 3 || myFeatureExtractor == 4)
         
         pixels = zeros(N, 5*3*18); % 5 caracteristicas 3 canais 18 filtros
+        pixelsAdj = zeros(totalAdj, 2+5*3*18); % 5 caracteristicas 3 canais 18 filtros
         A = rgbImage;
         numRows = size(A,1);
         numCols = size(A,2);
@@ -175,6 +216,7 @@ tic;
 
                     gradfA = gradient(fA);
 %                     disp(1+colorCnt+filtCnt);
+                    adjCnt = 1;
                     for labelVal = 1:N
                         colorIdx = idx{labelVal};
                         pixels(labelVal, 1+colorCnt+filtCnt) = mean(fA(colorIdx));
@@ -182,6 +224,24 @@ tic;
                         pixels(labelVal, 3+colorCnt+filtCnt) = median(fA(colorIdx));
                         pixels(labelVal, 4+colorCnt+filtCnt) = mean(fA(colorIdx).^2);
                         pixels(labelVal, 5+colorCnt+filtCnt) = mean(gradfA(colorIdx));
+                        for adj = 1:length(superPixels{labelVal}.adj)
+                            currAdj = superPixels{labelVal}.adj(adj);
+                            xi = min(superPixels{labelVal}.centX, superPixels{currAdj}.centX);
+                            xf = max(superPixels{labelVal}.centX, superPixels{currAdj}.centX);
+                            yi = min(superPixels{labelVal}.centY, superPixels{currAdj}.centY);
+                            yf = max(superPixels{labelVal}.centY, superPixels{currAdj}.centY);
+                            faAdj = fA(yi:yf, xi:xf);
+                            gradfAAdj = gradient(faAdj);
+                            pixelsAdj(adjCnt, 1) = labelVal;
+                            pixelsAdj(adjCnt, 2) = currAdj;
+                            pixelsAdj(adjCnt, 3+colorCnt+filtCnt) = mean(faAdj(:));
+                            pixelsAdj(adjCnt, 4+colorCnt+filtCnt) = std(faAdj(:));
+                            pixelsAdj(adjCnt, 5+colorCnt+filtCnt) = median(faAdj(:));
+                            pixelsAdj(adjCnt, 6+colorCnt+filtCnt) = mean(faAdj(:).^2);
+                            pixelsAdj(adjCnt, 7+colorCnt+filtCnt) = mean(gradfAAdj(:));
+                            adjCnt = adjCnt + 1;
+                            dbg = 1;
+                        end
                     end
                     
                     filtCnt = filtCnt+5;
@@ -394,7 +454,9 @@ tic;
     end
        
     pixels(isnan(pixels)) = 0;
+    if printResults
     fprintf('Execution time for feature extraction: %f s\n', toc);
+    end
     dbg = 1;
 %         teste = rgbImage(:, :, 1);
 % end

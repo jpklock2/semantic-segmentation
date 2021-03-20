@@ -1,4 +1,6 @@
+if printResults
 fprintf('\nSegmenting superpixels...\n');
+end
 tic;
  [L,N] = superpixels(rgbImage, K, 'Method', 'slic');
 %      [L,N] = superpixels(rgbImage, K, 'Method', 'slic0');
@@ -18,4 +20,6 @@ end
 %     end
 %     title('Super Pixel Segments')
 %  end
+if printResults
 fprintf('Execution time superpixel segmentation: %f s\n', toc);
+end

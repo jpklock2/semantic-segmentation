@@ -9,9 +9,72 @@ for i = 1:length(labelsArr)
 end
 myColors(1,:) = [];
 
+%% Get Membership Functions
+
+inFis = parameters.fis;
+cent = zeros(size(inFis.Inputs, 2), size(inFis.Inputs(1).MembershipFunctions, 2));
+sig = zeros(size(inFis.Inputs, 2), size(inFis.Inputs(1).MembershipFunctions, 2));
+x = -0.5:0.0001:0.5;
+mfsInp = {[]};
+for j=1:size(inFis.Inputs(1).MembershipFunctions, 2)
+    figure(2); subplot(2,4,j); hold on;
+    mfs = [];
+	for i=1:size(inFis.Inputs, 2)
+        if i == 1 || i == 2; plot(x, gaussmf(x, inFis.Inputs(i).MembershipFunctions(j).Parameters)); end
+        mfs = [mfs; gaussmf(x, inFis.Inputs(i).MembershipFunctions(j).Parameters)];
+        cent(i,j) = inFis.Inputs(i).MembershipFunctions(j).Parameters(2);
+        sig(i,j) = inFis.Inputs(i).MembershipFunctions(j).Parameters(1);
+	end
+    title(['Centroid ' num2str(j)], 'Color', myColors(j, :));
+    figure(3); subplot(2,4,j); plot(x, max(mfs(1:2, :))); title(['Centroid ' num2str(j)]);
+    mfsInp = [mfsInp; mfs];
+end
+
+figure(2);
+myLegs = {[]};
+for i = 1:Nc
+    myLegs = [myLegs; ['MF' num2str(i)]];
+end
+myLegs = myLegs(2:end);
+myLeg = legend(myLegs, 'Orientation','horizontal');
+newPosition = [0.4 0.01 0.2 0.05];
+newUnits = 'normalized';
+set(myLeg,'Position', newPosition,'Units', newUnits);
+
+mfsInp = mfsInp(2:end);
+porcs = [0.3, 0.7];
+figure;
+for i = 1:2
+mf = max(porcs(i)*max(mfsInp{3}),(1-porcs(i))*max(mfsInp{7}));
+subplot(1,2,i); plot(x, mf); hold on; title(['Ex' num2str(i) ': ' num2str(100*porcs(i)) '% c3 - ' num2str(100*(1-porcs(i))) '% c7']);
+
+xCentroid1 = defuzz(x,mf,'centroid');
+idxC = find(x >= xCentroid1);
+kValue = mf(idxC(1));
+
+xCentroid2 = defuzz(x,mf,'bisector');
+idxC2 = find(x >= xCentroid2);
+kValue2 = mf(idxC2(1));
+
+hCentroid = line([xCentroid1 xCentroid1],[min(mf) max(mf)],'Color','k');
+hCentroid = line([xCentroid2 xCentroid2],[min(mf) max(mf)],'Color','r');
+end
+myLeg = legend({'MF', 'Defuzzy Centroid', 'Defuzzy Bisector'}, 'Orientation','horizontal');
+newPosition = [0.4 0.01 0.2 0.05];
+newUnits = 'normalized';
+set(myLeg,'Position', newPosition,'Units', newUnits);
+
 %% Get centroids
 centroidsReconstructed = ((parameters.pcaCoeffs(:,1:parameters.pcaN)*centroids')+parameters.pcaMean')';
 textureCentroids = centroidsReconstructed(:, 85:end);
+
+%% Box Plots
+
+figure;
+for i = 1:Nc
+    subplot(2,ceil(Nc/2),i); boxplot(textureCentroids(i, :)); title(['Class ' num2str(i)], 'Color', myColors(i, :));
+end
+imlegend(myColors(1:Nc, :), labelsArr, 0.01, 0.05);
 
 %% Plot texture coefficients
 figure;
@@ -94,7 +157,7 @@ else
         outputImage(idx{labelVal}+2*numRows*numCols) = parameters.meanBlue(classes(labelVal));
     end
     figure; montage({rgbImage,outputImage,colorLmask}, 'Size', [1 3]);
-    imlegend(myColors(1:Nc, :), labelsArr, 0.02);
+    imlegend(myColors(1:Nc, :), labelsArr, 0.02, 0.1);
     suptitle('Image Classes');
 end
 
@@ -112,7 +175,7 @@ sigC = (sigC+1)/2;
 for i = 1:length(labelsArrSig)
     text(0.1+(0.1*(i-1)),0.3,num2str(round(sigC(i), 3)),'color',myColors(i, :));
 end
-imlegend(myColors(1:Nc, :), labelsArr, 0.1);
+imlegend(myColors(1:Nc, :), labelsArr, 0.1, 0.1);
 
 %% Plot final result text 2
 sigC = 1./(1+exp(-mean(textureCentroids, 2)./(1*std(textureCentroids, [], 2))));
@@ -128,7 +191,7 @@ sigC = (sigC+1)/2;
 for i = 1:length(labelsArrSig)
     text(0.1+(0.1*(i-1)),0.3,num2str(round(sigC(i), 3)),'color',myColors(i, :));
 end
-imlegend(myColors(1:Nc, :), labelsArr, 0.1);
+imlegend(myColors(1:Nc, :), labelsArr, 0.1, 1.1);
 
 %% Plot final result text 3
 sigC = 1./(1+exp(-mean(textureCentroids, 2)./(3*std(textureCentroids, [], 2))));
@@ -144,7 +207,7 @@ sigC = (sigC+1)/2;
 for i = 1:length(labelsArrSig)
     text(0.1+(0.1*(i-1)),0.3,num2str(round(sigC(i), 3)),'color',myColors(i, :));
 end
-imlegend(myColors(1:Nc, :), labelsArr, 0.1);
+imlegend(myColors(1:Nc, :), labelsArr, 0.1, 0.1);
 
 %% Plot final result text 4
 sigC = 1./(1+exp(-mean(textureCentroids, 2)./(3*mean(std(textureCentroids, [], 2)))));
@@ -160,12 +223,12 @@ sigC = (sigC+1)/2;
 for i = 1:length(labelsArrSig)
     text(0.1+(0.1*(i-1)),0.3,num2str(round(sigC(i), 3)),'color',myColors(i, :));
 end
-imlegend(myColors(1:Nc, :), labelsArr, 0.1);
+imlegend(myColors(1:Nc, :), labelsArr, 0.1, 0.1);
 
 end
 
 %% Aux function
-function imlegend(colorArr, labelsArr, yp)
+function imlegend(colorArr, labelsArr, yp, ys)
 hold on;
 for ii = 1:length(labelsArr)
   hidden_h(ii) = scatter([],[],1, colorArr(ii,:), 'filled', 'DisplayName', labelsArr{ii});
@@ -176,7 +239,7 @@ hold off;
 % legend();
 
 myLeg = legend(labelsArr, 'Orientation','horizontal');
-newPosition = [0.4 yp 0.2 0.1];
+newPosition = [0.4 yp 0.2 ys];
 newUnits = 'normalized';
 set(myLeg,'Position', newPosition,'Units', newUnits);
 end

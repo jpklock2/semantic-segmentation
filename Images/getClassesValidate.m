@@ -1,7 +1,7 @@
 if (useCropped)
-    load(['./Images/Test/Original/Classes/im',num2str(m),'.mat']);
-else
     load(['./Images/Test/Cropped/Classes/cropped_im',num2str(m),'.mat']);
+else
+    load(['./Images/Test/Original_Dev/Classes/im',num2str(m),'.mat']);
 end
 
 if increaseSp

@@ -106,7 +106,7 @@ for l=1:nEp
         dedqij = dedys.*dysdyj*dydqj;
         cent(st,:) = cent(st,:) - (alfa.*dedcij);
         sig(st,:) = sig(st,:) - (alfa.*dedsij);
-        qi = qi - (alfa*dedqij);
+        qi = qi - (alfa*nMf*dedqij);
         
         for o=1:nO
 %             st = 1:nMf;

@@ -131,40 +131,41 @@ getwd()
 pasta = 'resultados1'
 
 # Coleta de erros
-ERRO_caso_1 <- data.frame(readMat(paste(pasta,'/ERR_TOTAL_IMG_Rotacionada_spre.mat', sep="")))
-colnames(ERRO_caso_1)<-c("ERRO_caso_1")
+#ERRO_caso_1 <- data.frame(readMat(paste(pasta,'/ERR_TOTAL_IMG_Rotacionada_spre.mat', sep="")))
+#colnames(ERRO_caso_1)<-c("ERRO_caso_1")
 
-ERRO_caso_2 <- data.frame(readMat(paste(pasta,'/ERR_TOTAL_IMG_Rotacionada_cpre.mat', sep="")))
-colnames(ERRO_caso_2)<-c("ERRO_caso_2")
+#ERRO_caso_2 <- data.frame(readMat(paste(pasta,'/ERR_TOTAL_IMG_Rotacionada_cpre.mat', sep="")))
+#colnames(ERRO_caso_2)<-c("ERRO_caso_2")
 
-ERRO_caso_3 <- data.frame(readMat(paste(pasta,'/ERR_TOTAL_IMG_Rotacionada_spre_bnorm.mat', sep="")))
-colnames(ERRO_caso_3)<-c("ERRO_caso_3")
+#ERRO_caso_3 <- data.frame(readMat(paste(pasta,'/ERR_TOTAL_IMG_Rotacionada_spre_bnorm.mat', sep="")))
+#colnames(ERRO_caso_3)<-c("ERRO_caso_3")
 
-ERRO_caso_4 <- data.frame(readMat(paste(pasta,'/ERR_TOTAL_IMG_Rotacionada_cpre_badap.mat', sep="")))
-colnames(ERRO_caso_4)<-c("ERRO_caso_4")
+#ERRO_caso_4 <- data.frame(readMat(paste(pasta,'/ERR_TOTAL_IMG_Rotacionada_cpre_badap.mat', sep="")))
+#colnames(ERRO_caso_4)<-c("ERRO_caso_4")
 
-ERRO_caso_5 <- data.frame(readMat(paste(pasta,'/ERR_TOTAL_IMG_ransac_matlab_bnormal.mat', sep="")))
-colnames(ERRO_caso_5)<-c("ERRO_caso_5")
+#ERRO_caso_5 <- data.frame(readMat(paste(pasta,'/ERR_TOTAL_IMG_ransac_matlab_bnormal.mat', sep="")))
+#colnames(ERRO_caso_5)<-c("ERRO_caso_5")
 
-ERRO_caso_6 <- data.frame(readMat(paste(pasta,'/ERR_TOTAL_IMG_ransac_matlab_badap.mat', sep="")))
-colnames(ERRO_caso_6)<-c("ERRO_caso_6")
+#ERRO_caso_6 <- data.frame(readMat(paste(pasta,'/ERR_TOTAL_IMG_ransac_matlab_badap.mat', sep="")))
+#colnames(ERRO_caso_6)<-c("ERRO_caso_6")
 
 ERRO_caso_7 <- data.frame(readMat(paste(pasta,'/ERR_TOTAL_IMG_ransac_opencv_badap.mat', sep="")))
 colnames(ERRO_caso_7)<-c("ERRO_caso_7")
 
-x <- c(1:1593)
+x <- c(1:10)
 
-ERROR<- data.frame(x,ERRO_caso_1,ERRO_caso_2,ERRO_caso_3,ERRO_caso_4,ERRO_caso_5,ERRO_caso_6,ERRO_caso_7)
+#ERROR<- data.frame(x,ERRO_caso_1,ERRO_caso_2,ERRO_caso_3,ERRO_caso_4,ERRO_caso_5,ERRO_caso_6,ERRO_caso_7)
+ERROR<- data.frame(x,ERRO_caso_7)
 # colnames(ERROR) <- c('x','Erro_caso_1', 'Erro_caso_2', 'Erro_caso_3', 'Erro_caso_4', 'Erro_caso_5','Erro_caso_6','Erro_caso_7')
 
 # calculo de la media e del desvio padrao SD
-ERROR_1 <- data.frame(ERRO_caso_1,ERRO_caso_2,ERRO_caso_3,ERRO_caso_4,ERRO_caso_5,ERRO_caso_6,ERRO_caso_7)
+ERROR_1 <- data.frame(ERRO_caso_7)
 med_ERROR_1 <- data.frame(apply(ERROR_1,2,mean,na.rm=T))
 sd_ERROR_1 <- data.frame(apply(ERROR_1,2,sd,na.rm=T))
 
 #plot de una rota individual
-p1<-ggplot(ERROR, aes(x=x,y=ERRO_caso_1, fill=ERRO_caso_1))+
-  geom_point(aes(color = ERRO_caso_1)) +
+p1<-ggplot(ERROR, aes(x=x,y=ERRO_caso_7, fill=ERRO_caso_7))+
+  geom_point(aes(color = ERRO_caso_7)) +
   # geom_line()+
   geom_smooth(alpha=.7)+
   geom_bar(position=position_dodge(), stat="identity",alpha=.4) +

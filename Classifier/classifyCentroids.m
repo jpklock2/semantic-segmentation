@@ -26,7 +26,9 @@ switch myClassifier
             myAccs = [myAccs; accuracy predAcc mean([accuracy predAcc])];
     %         myAccs = [myAccs; accuracy accuracy2 sum(predominance > 0.2) sum(predominance > 0.3) sum(predominance > 0.4) sum(predominance > 0.5)];
     %         fprintf('Accuracy = %.2f%% [%d/%d]\n', 100*accuracy, sum(classesP == classes), length(classes));
+    if printResults
             fprintf('Accuracy = %.2f%% [%d/%d]\n', 100*accuracy, sum(classesP == classes), length(classes));
+    end
         end
         classes = classesP;
     case 2
@@ -43,7 +45,9 @@ switch myClassifier
     %         accuracy2 = sum(classes == classesP | classes == classesP+1 | classes == classesP-1) / length(classes);
             predAcc = predominanceAccuracy(classes, classesP);
             myAccs = [myAccs; accuracy predAcc mean([accuracy predAcc])];
+            if printResults
             fprintf('Accuracy = %.2f%% [%d/%d]\n', 100*accuracy, sum(classesP == classes), length(classes));
+            end
         end
         classes = classesP;
 %         colorSuperpixel;
@@ -83,7 +87,9 @@ switch myClassifier
             predAcc = predominanceAccuracy(classes, classesP);
             myAccs = [myAccs; accuracy predAcc mean([accuracy predAcc])];
     %         myAccs = [myAccs; accuracy accuracy2 sum(predominance > 0.2) sum(predominance > 0.3) sum(predominance > 0.4) sum(predominance > 0.5)];
+    if printResults
             fprintf('Accuracy = %.2f%% [%d/%d]\n', 100*accuracy, sum(classesP == classes), length(classes));
+    end
         end
         classes = classesP;
 
@@ -115,7 +121,9 @@ switch myClassifier
     %         accuracy2 = sum(classes == classesP | classes == classesP+1 | classes == classesP-1) / length(classes);
             predAcc = predominanceAccuracy(classes, classesP);
             myAccs = [myAccs; accuracy predAcc mean([accuracy predAcc])];
+            if printResults
             fprintf('Accuracy = %.2f%% [%d/%d]\n', 100*accuracy, sum(classesP == classes), length(classes));
+            end
         end
         classes = classesP;
 

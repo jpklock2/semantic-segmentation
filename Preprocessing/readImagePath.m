@@ -1,18 +1,21 @@
 %      close all;
 %  fprintf('\nImage %d:\n', m)
- 
+ if printResults
  fprintf('\nReading image...\n');
  tic;
+ end
 
  % obtem a imagem RGB, altera seu tamanho e mostra a imagem original (rows x cols x bands)
 %  currentImage = strtrim(imageNames{m});   
  rgbImageTemp = imread(imagePath); % im2double() - converte pixels para double
  if m > 1
-    rgbImage = imresize(rgbImageTemp,0.206944444444444,'box'); % diminui o tamanho da imagem para diminuir os calculos
+    rgbImage = imresize(rgbImageTemp,scaleSize,'Bilinear'); % diminui o tamanho da imagem para diminuir os calculos
+%     rgbImage = rgbImageTemp;
  else
-    rgbImage = rgbImageTemp;
-%     rgbImage = imresize(rgbImageTemp,0.25,'box'); % diminui o tamanho da imagem para diminuir os calculos
+%     rgbImage = rgbImageTemp;
+    rgbImage = imresize(rgbImageTemp, 0.25); % diminui o tamanho da imagem para diminuir os calculos
  end
+ originalRgbImage = rgbImage;
  clear rgbImageTemp
 %  [L,Centers] = imsegkmeans(rgbImage,7);
 %  B = labeloverlay(rgbImage,L);
@@ -36,16 +39,18 @@
 % C = labeloverlay(rgbImage,L2);
 % figure; imshow(C);
  rgbImage = im2double(rgbImage);
- if (useCropped && m ~=  1)
-     rgbImage2 = rgbImage;
-     currentImageCrop = ['./Images/Test/Cropped/cropped_image_' num2str(m) '.JPG'];
-     rgbImageTempCrop = im2double(imread(currentImageCrop));
-     rgbImageCrop = imresize(rgbImageTempCrop, size(rgbImage(:,:,1)));
-     rgbImage = rgbImageCrop;
-%      rgbImageCrop = rgbImage2;
-     clear rgbImage2 rgbImageCrop rgbImageTempCrop
- end
+%  if (useCropped && m ~=  1)
+%      rgbImage2 = rgbImage;
+%      currentImageCrop = ['./Images/Test/Cropped/cropped_image_' num2str(m) '.JPG'];
+%      rgbImageTempCrop = im2double(imread(currentImageCrop));
+%      rgbImageCrop = imresize(rgbImageTempCrop, size(rgbImage(:,:,1)));
+%      rgbImage = rgbImageCrop;
+% %      rgbImageCrop = rgbImage2;
+%      clear rgbImage2 rgbImageCrop rgbImageTempCrop
+%  end
+ if printResults
  fprintf('Execution time for reading image: %f s\n', toc);
+ end
  % abaixo, plota a imagem original
 %  if plotsIM
 %      figure('Renderer', 'painters', 'Position', [100 100 800 700]); set(gcf,'color','w');
