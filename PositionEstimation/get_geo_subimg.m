@@ -1,5 +1,5 @@
-function [geo_img,cmap,R,bbox,geo_mask,cropSize]=get_geo_subimg(...
-    lat_req, lon_req, tamx, tamy, X, cmap, R, bbox, hab, mask)
+function [geo_img,cmap,R,bbox,cropSize]=get_geo_subimg(...
+    lat_req, lon_req, tamx, tamy, X, cmap, R, bbox, hab)
 
 % geo_img       - imagem do banco de dados recortada com base na lat,lon.
 % cmap          - mapa de cores
@@ -55,7 +55,7 @@ if ( final_y > tam_img(2) )
 end
 
 geo_img=X(inicio_x:final_x, inicio_y:final_y,:);
-geo_mask = mask(inicio_x:final_x, inicio_y:final_y,:);
+% geo_mask = mask(inicio_x:final_x, inicio_y:final_y,:);
 [R(3,2),R(3,1)]=pix2latlon(R,inicio_x,inicio_y);
 cropSize = [inicio_x inicio_y final_x final_y];
 % [R(3,2),R(3,1)]=pix2map(R,inicio_x,inicio_y);

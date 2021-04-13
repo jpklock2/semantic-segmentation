@@ -1,7 +1,7 @@
 function [resCentro, resProb, resIn, resArea, resDist, visDist, visProb, visIn] = geoAdjacencyTM(geoAdjacencies, adjacencies, classes, Lmask, mask, maskGeo, cropSize, utilCropSize, parameters, filter, geo_img, util_mask, R, lon, lat, imgCnt, rotPlotImage, rotSegmentation)
 
 %geoAdjacencies, ftGeoOwn, ftGeoAdj
-run_template_matching = 0;
+run_template_matching = 1;
 if run_template_matching
 tic;
 fprintf('\nRunning Correlation Matrix...\n');

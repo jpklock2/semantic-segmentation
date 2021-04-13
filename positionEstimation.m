@@ -149,7 +149,7 @@ for i = 1:length(imageNamesTemp)
         for mx = 1:length(classesGeo)
             LmaskGeo(maskGeo == mx) = classesGeo(mx);
         end
-        save(['geoData_filter_' num2str(filters(n_filt)) '.mat'],'maskGeo','maskIdxGeo','centroidsGeo','classesGeo','parameters','LmaskGeo','geoAdjacencies','ftGeoOwn','ftGeoAdj');
+        save(['geoData_filter_' num2str(filters(n_filt)) '_25.mat'],'maskGeo','maskIdxGeo','centroidsGeo','classesGeo','parameters','LmaskGeo','geoAdjacencies','ftGeoOwn','ftGeoAdj');
     end
 
 %     end
@@ -181,7 +181,7 @@ for i = 1:length(imageNamesTemp)
         for mx = 1:length(classes)
             Lmask(mask == mx) = classes(mx);
         end
-        load(['geoData_filter_' num2str(filters(n_filt)) '.mat']);
+%         load(['geoData_filter_' num2str(filters(n_filt)) '.mat']);
 %         figure; imagesc(Lmask);
         fprintf('%s\n', repmat('º', [1 75]));
     end
@@ -190,8 +190,8 @@ for i = 1:length(imageNamesTemp)
     fprintf('\nGetting Geo SubImage...\n');
     tic;
     hab=1;
-    [crop_geo_img,cmap,R,bbox,crop_geo_mask,cropSize]=get_geo_subimg(lat(i,1),lon(i,1),...
-        tamx_calc, tamy_calc, geo_img, cmap, R_copy, bbox, hab, LmaskGeo);
+    [crop_geo_img,cmap,R,bbox,cropSize]=get_geo_subimg(lat(i,1),lon(i,1),...
+        tamx_calc, tamy_calc, geo_img, cmap, R_copy, bbox, hab);
     
     if printFigs                                       
         figure (2);
