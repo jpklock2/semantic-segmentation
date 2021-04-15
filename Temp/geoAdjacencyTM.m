@@ -1,7 +1,7 @@
-function [resCentro, resProb, resIn, resArea, resDist, visDist, visProb, visIn] = geoAdjacencyTM(geoAdjacencies, adjacencies, classes, Lmask, mask, maskGeo, cropSize, utilCropSize, parameters, filter, geo_img, util_mask, R, lon, lat, imgCnt, rotPlotImage, rotSegmentation)
+function [resCentro, resProb, resIn, resArea, resDist, visDist, visProb, visIn, redArea] = geoAdjacencyTM(geoAdjacencies, adjacencies, classes, Lmask, mask, maskGeo, cropSize, utilCropSize, parameters, filter, geo_img, util_mask, R, lon, lat, imgCnt, rotPlotImage, rotSegmentation)
 
 %geoAdjacencies, ftGeoOwn, ftGeoAdj
-run_template_matching = 1;
+run_template_matching = 0;
 if run_template_matching
 tic;
 fprintf('\nRunning Correlation Matrix...\n');
@@ -365,6 +365,21 @@ zResCut = zCut(xRes, yRes);
 cutAreaY = X1(logical(zCut));
 cutAreaX = X2(logical(zCut));
 resArea = [min(cutAreaY) min(cutAreaX) max(cutAreaY) max(cutAreaX)];
+redArea = zeros(cropSize(3)-cropSize(1)+1, cropSize(4)-cropSize(2)+1);
+
+yCoords2 = linspace(1, cropSize(3)-cropSize(1)+1, 10000);
+xCoords2 = linspace(1, cropSize(4)-cropSize(2)+1, 10000);
+[X11,X22] = meshgrid(yCoords2, xCoords2);
+cutAreaY2 = X11(logical(zCut));
+cutAreaX2 = X22(logical(zCut));
+
+posTable = table(round(cutAreaY2), round(cutAreaX2));
+allPositives = table2array(unique(posTable, 'rows'));
+clear posTable yCoords2 xCoords2 X11 X22 cutAreaY2 cutAreaX2;
+% redArea(allPositives) = 1;
+for i = 1:size(allPositives, 1)
+    redArea(allPositives(i, 1), allPositives(i, 2)) = 1;
+end
 
 if imgCnt < 11
     errY = abs(yCoords-visPos(1));

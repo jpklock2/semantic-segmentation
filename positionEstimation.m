@@ -290,9 +290,32 @@ for i = 1:length(imageNamesTemp)
     log_coords2 = [log_coords2; lat(i,1),lon(i,1), lat_srp2, lon_srp2, dist2, filters(n_filt), kVal, kVal2, kVal3, kVal4, i];
     
     else
-        [resCentro, resProb, resIn, resArea, resDist, visDist, visProb, visIn] = geoAdjacencyTM(...
+        [resCentro, resProb, resIn, resArea, resDist, visDist, visProb, visIn, redArea] = geoAdjacencyTM(...
             geoAdjacencies, adjacencies, classes, Lmask, util_mask, LmaskGeo,...
             cropSize, utilCropSize, parameters, filters(n_filt), geo_img, util_rot_mask, R_copy, lon(i,1), lat(i,1), i, rotPlotImage, rotOutputSegmentation);
+        
+        [yoffSet, xoffSet, Mcorr,centro] = edges_and_correlation_v2(util_rot_img, crop_geo_img, cases(n_case), resArea, cropSize, redArea);
+        
+        centro;
+        retorno = Mcorr;
+%         templates = [templates; bwTemplate];
+%         targets = [targets; bwTarget];
+        
+        %% Distance
+        fprintf('\nCalculating Distance...\n');
+        tic;
+        % Calculo da latitude e longitude com base nos pixeis da img.
+        [lat_srp, lon_srp] = pix2latlon(R, centro(1), centro(2));
+        [lat_srp2, lon_srp2] = pix2latlon(R, centro(2), centro(1));
+
+    %     lat_p=sprintf('%0.10f', lat_srp)
+    %     lon_p=sprintf('%0.10f', lon_srp)
+
+        dist1 = m_idist(lon_srp, lat_srp, lon(i,1), lat(i,1));
+        dist2 = m_idist(lon_srp2, lat_srp2, lon(i,1), lat(i,1));
+
+        fprintf('Execution time for Distance: %f s\n', toc);
+        
     end
     
     end
