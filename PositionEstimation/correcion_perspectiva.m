@@ -76,7 +76,7 @@ c2 = polyfit([xc 1+diffW], [yc 1+diffH], 1);
 yc2 = round(linspace(xc, 1, floor(0.95*dg)));
 yc2 = c2(1)*yc2 + c2(2);
 
-hi = round(yc1(end));
+hi = max(round(yc1(end)), 1);
 
 c3 = polyfit([xc 1+diffW], [yc h1-diffH], 1);
 yc3 = round(linspace(xc, 1, floor(0.99*dg)));
@@ -86,7 +86,7 @@ c4 = polyfit([xc w1-diffW], [yc h1-diffH], 1);
 yc4 = round(linspace(xc, w1, floor(0.99*dg)));
 yc4 = c4(1)*yc4 + c4(2);
 
-hf = round(yc3(end));
+hf = min(round(yc3(end)), h1);
 
 diffW = 0;
 
@@ -109,6 +109,7 @@ yd4 = round(linspace(yc, hf, floor(0.99*dg)));
 
 flagQ1 = 0; flagQ2 = 0; flagQ3 = 0; flagQ4 = 0;
 for i = 1:length(xd1)
+    try
     if all(currImg(yd1(i), xd1(i), :) == 0) && ~flagQ1
         q1 = [xd1(i) yd1(i)];
         flagQ1 = 1;
@@ -127,6 +128,9 @@ for i = 1:length(xd1)
     if all(currImg(yd4(i), xd4(i), :) == 0) && ~flagQ4
         q4 = [xd4(i) yd4(i)];
         flagQ4 = 1;
+    end
+    catch
+        dbg = 1;
     end
 end
 

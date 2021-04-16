@@ -75,7 +75,7 @@ allTemplateResults = [{}];
 % load('experiment_temp.mat');
 % size(log_coords1_all, 1)+
 printFigs = 0;
-for i = 1:length(imageNamesTemp)
+for i = size(allTemplateResults, 1)+1:length(imageNamesTemp)
     
 %     for expe = 0.2:0.2:2
     for expe = 1:1
@@ -294,7 +294,7 @@ for i = 1:length(imageNamesTemp)
             geoAdjacencies, adjacencies, classes, Lmask, util_mask, LmaskGeo,...
             cropSize, utilCropSize, parameters, filters(n_filt), geo_img, util_rot_mask, R_copy, lon(i,1), lat(i,1), i, rotPlotImage, rotOutputSegmentation);
         
-        [yoffSet, xoffSet, Mcorr,centro] = edges_and_correlation_v2(util_rot_img, crop_geo_img, cases(n_case), resArea, cropSize, redArea);
+        [yoffSet, xoffSet, Mcorr, centro] = edges_and_correlation_v2(util_rot_img, crop_geo_img, cases(n_case), resArea, cropSize, redArea);
         
         centro;
         retorno = Mcorr;
@@ -329,7 +329,7 @@ for i = 1:length(imageNamesTemp)
     
     end
     
-    allTemplateResults = [allTemplateResults; {resCentro, resProb, resIn, resArea, resDist, visDist, visProb, visIn}];
+    allTemplateResults = [allTemplateResults; {resCentro, resProb, resIn, resArea, resDist, visDist, visProb, visIn, centro, dist1}];
     save templateResults.mat allTemplateResults
 
 % end

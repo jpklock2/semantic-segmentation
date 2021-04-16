@@ -1,7 +1,7 @@
 function [resCentro, resProb, resIn, resArea, resDist, visDist, visProb, visIn, redArea] = geoAdjacencyTM(geoAdjacencies, adjacencies, classes, Lmask, mask, maskGeo, cropSize, utilCropSize, parameters, filter, geo_img, util_mask, R, lon, lat, imgCnt, rotPlotImage, rotSegmentation)
 
 %geoAdjacencies, ftGeoOwn, ftGeoAdj
-run_template_matching = 0;
+run_template_matching = 1;
 if run_template_matching
 tic;
 fprintf('\nRunning Correlation Matrix...\n');
@@ -74,8 +74,8 @@ BW_Template = edge(util_mask, 'canny', [], sqrt(2));
 
 % finding class adjacency
 % adjacencies,ftOwn,ftAdj
-syG = size(maskGeo, 1);
-sxG = size(maskGeo, 2);
+syG = size(geo_img, 1);
+sxG = size(geo_img, 2);
 tYG = cropSize(3)-cropSize(1);
 tXG = cropSize(4)-cropSize(2);
 nP = 10;
@@ -381,7 +381,7 @@ for i = 1:size(allPositives, 1)
     redArea(allPositives(i, 1), allPositives(i, 2)) = 1;
 end
 
-if imgCnt < 11
+if imgCnt < 0 %11
     errY = abs(yCoords-visPos(1));
     yRes = find(errY == min(errY), 1);
     errX = abs(xCoords-visPos(2));
@@ -430,7 +430,7 @@ visIn = zVisCut;
 % Calculo da latitude e longitude com base nos pixeis da img.
 [lat_res, lon_res] = pix2latlon(R, resCentro(1), resCentro(2));
 resDist = m_idist(lon_res, lat_res, lon, lat);
-if imgCnt < 11
+if imgCnt < 0 %11
     [lat_vis, lon_vis] = pix2latlon(R, visPos(1), visPos(2));
     visDist = m_idist(lon_res, lat_res, lon_vis, lat_vis);
 else

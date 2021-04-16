@@ -8,9 +8,10 @@ if useAll
         end
     end
 else
-    imagesPath = 'Images/Test/Original_Dev';
+%     imagesPath = 'Images/Test/Original_Dev';
 %     imagesPath = 'Images/Test/Cropped/SemEqualizacao';
 %     imagesPath = 'Images/Test/Cropped/ComEqualizacao';
+imagesPath = 'Imagens_artigo';
 useCropped = 0;
     listing = dir(['./' imagesPath]);
     imageNames = [{}];
