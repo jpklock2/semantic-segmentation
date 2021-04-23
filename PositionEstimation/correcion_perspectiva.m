@@ -1,6 +1,7 @@
 function [img, util_img, Lmask, util_Lmask, mask, utilCropSize, currImg, currPlotImage, currSegmentation]=correcion_perspectiva(img, yaw, pitch, roll, distz, Lmask, mask, currImg, currPlotImage, currSegmentation)
 
 [h, w,~] = size(img);
+oldImg = zeros(size(img));
 
 distx =(300/(tand(90-roll)));
 disty =(300/(tand(90-pitch)));
@@ -38,126 +39,13 @@ end
 
 theta = atan2(tform.T(2,1), tform.T(2,2)) * 180 / pi;
 
-% figure; imshow(currImg);
-% hold on;
-% boxin.width = size(img, 2);
-% boxin.height = size(img, 1);
-% boxout = imRotateCrop(boxin, theta, 'AspectRatio', 'maxArea', 'Position', 0);
-% xcentre = (1+size(currImg, 2))/2 + boxout.xshift;
-% ycentre = (1+size(currImg, 1))/2 + boxout.yshift;
-% w2 = boxout.width/2;
-% h2 = boxout.height/2;
-% xcrds = xcentre + [w2 w2 -w2 -w2 w2];   % box corner coords
-% ycrds = ycentre + [h2 -h2 -h2 h2 h2];
-% hold on;
-% plot(xcrds, ycrds, 'g-', 'LineWidth', 3);
-
-
-[h1, w1, ~] = size(currImg);
-w2 = w1/2;
-h2 = h1/2;
-
-dg = sqrt(w2^2 + h2^2);
-angInc = asin(h2/dg)*180/pi;
-xc = (1+w1)/2;
-yc = (1+h1)/2;
-
-% diffH = 0;
-% diffW = 0;
-
-diffH = h1 - h;
-diffW = w1 - w;
-
-c1 = polyfit([xc w1-diffW], [yc 1+diffH], 1);
-yc1 = round(linspace(xc, w1, floor(0.95*dg)));
-yc1 = c1(1)*yc1 + c1(2);
-
-c2 = polyfit([xc 1+diffW], [yc 1+diffH], 1);
-yc2 = round(linspace(xc, 1, floor(0.95*dg)));
-yc2 = c2(1)*yc2 + c2(2);
-
-hi = max(round(yc1(end)), 1);
-
-c3 = polyfit([xc 1+diffW], [yc h1-diffH], 1);
-yc3 = round(linspace(xc, 1, floor(0.99*dg)));
-yc3 = c3(1)*yc3 + c3(2);
-
-c4 = polyfit([xc w1-diffW], [yc h1-diffH], 1);
-yc4 = round(linspace(xc, w1, floor(0.99*dg)));
-yc4 = c4(1)*yc4 + c4(2);
-
-hf = min(round(yc3(end)), h1);
-
-diffW = 0;
-
-% l1 = line([xc w1-diffW], [yc hi],'Color','red','LineWidth', 3);
-% l2 = line([xc 1+diffW], [yc hi],'Color','red','LineWidth', 3);
-% l3 = line([xc 1+diffW], [yc hf],'Color','red','LineWidth', 3);
-% l4 = line([xc w1-diffW], [yc hf],'Color','red','LineWidth', 3);
-
-xd1 = round(linspace(xc, w1-diffW, floor(0.99*dg)));
-yd1 = round(linspace(yc, hi, floor(0.99*dg)));
-
-xd2 = round(linspace(xc, 1+diffW, floor(0.99*dg)));
-yd2 = round(linspace(yc, hi, floor(0.99*dg)));
-
-xd3 = round(linspace(xc, 1+diffW, floor(0.99*dg)));
-yd3 = round(linspace(yc, hf, floor(0.99*dg)));
-
-xd4 = round(linspace(xc, w1-diffW, floor(0.99*dg)));
-yd4 = round(linspace(yc, hf, floor(0.99*dg)));
-
-flagQ1 = 0; flagQ2 = 0; flagQ3 = 0; flagQ4 = 0;
-for i = 1:length(xd1)
-    try
-    if all(currImg(yd1(i), xd1(i), :) == 0) && ~flagQ1
-        q1 = [xd1(i) yd1(i)];
-        flagQ1 = 1;
-    end
-    
-    if all(currImg(yd2(i), xd2(i), :) == 0) && ~flagQ2
-        q2 = [xd2(i) yd2(i)];
-        flagQ2 = 1;
-    end
-    
-    if all(currImg(yd3(i), xd3(i), :) == 0) && ~flagQ3
-        q3 = [xd3(i) yd3(i)];
-        flagQ3 = 1;
-    end
-    
-    if all(currImg(yd4(i), xd4(i), :) == 0) && ~flagQ4
-        q4 = [xd4(i) yd4(i)];
-        flagQ4 = 1;
-    end
-    catch
-        dbg = 1;
-    end
+[y0, x0, y1, x1] = useful_area_v2(oldImg, currImg, theta, 1, 1);
+[y00, x00, y11, x11] = useful_area_v2(oldImg, currImg, theta, 0, 1);
+area0 = (y1-y0)*(x1-x0);
+area1 = (y11-y00)*(x11-x00);
+if (abs(theta) > 45 && abs(theta) < 135) || (abs(theta) > 225 && abs(theta) < 315)
+    y0 = y00; y1 = y11; x0 = x00; x1 = x11;
 end
-
-if flagQ1 == 0
-    q1 = [w1-diffW hi];
-end
-
-if flagQ2 == 0
-    q2 = [1+diffW hi];
-end
-
-if flagQ3 == 0
-    q3 = [1+diffW hf];
-end
-
-if flagQ4 == 0
-    q4 = [w1-diffW hf];
-end
-
-y0 = max(q1(2), q2(2));
-y1 = min(q3(2), q4(2));
-x0 = max(q2(1), q3(1));
-x1 = min(q1(1), q4(1));
-
-xcrds = [x0 x0 x1 x1 x0];
-ycrds = [y0 y1 y1 y0 y0];
-% plot(xcrds, ycrds, 'b-', 'LineWidth', 3);
 
 util_img = img;
 
@@ -272,6 +160,137 @@ if swapxy
 end
 if tall
     xoff = -xoff;
+end
+
+end
+
+%%
+function [y0, x0, y1, x1] = useful_area_v2(img, currImg, theta, mantainAspectRatio, plotFig)
+
+[h, w,~] = size(img);
+    
+if plotFig
+figure; imshow(currImg);
+hold on;
+boxin.width = size(currImg, 2);
+boxin.height = size(currImg, 1);
+boxout = imRotateCrop(boxin, theta, 'AspectRatio', 'maxArea', 'Position', 0);
+xcentre = (1+size(currImg, 2))/2 + boxout.xshift;
+ycentre = (1+size(currImg, 1))/2 + boxout.yshift;
+w2 = boxout.width/2;
+h2 = boxout.height/2;
+xcrds = xcentre + [w2 w2 -w2 -w2 w2];   % box corner coords
+ycrds = ycentre + [h2 -h2 -h2 h2 h2];
+hold on;
+plot(xcrds, ycrds, 'g-', 'LineWidth', 3);
+end
+
+[h1, w1, ~] = size(currImg);
+w2 = w1/2;
+h2 = h1/2;
+
+dg = sqrt(w2^2 + h2^2);
+angInc = asin(h2/dg)*180/pi;
+xc = (1+w1)/2;
+yc = (1+h1)/2;
+
+if mantainAspectRatio
+    diffH = h1 - h;
+    diffW = w1 - w;
+else
+    diffH = 0;
+    diffW = 0;
+end
+
+c1 = polyfit([xc w1-diffW], [yc 1+diffH], 1);
+yc1 = round(linspace(xc, w1, floor(0.95*dg)));
+yc1 = c1(1)*yc1 + c1(2);
+
+c2 = polyfit([xc 1+diffW], [yc 1+diffH], 1);
+yc2 = round(linspace(xc, 1, floor(0.95*dg)));
+yc2 = c2(1)*yc2 + c2(2);
+
+hi = max(round(yc1(end)), 1);
+
+c3 = polyfit([xc 1+diffW], [yc h1-diffH], 1);
+yc3 = round(linspace(xc, 1, floor(0.99*dg)));
+yc3 = c3(1)*yc3 + c3(2);
+
+c4 = polyfit([xc w1-diffW], [yc h1-diffH], 1);
+yc4 = round(linspace(xc, w1, floor(0.99*dg)));
+yc4 = c4(1)*yc4 + c4(2);
+
+hf = min(round(yc3(end)), h1);
+
+diffW = 0;
+
+if plotFig
+l1 = line([xc w1-diffW], [yc hi],'Color','red','LineWidth', 3);
+l2 = line([xc 1+diffW], [yc hi],'Color','red','LineWidth', 3);
+l3 = line([xc 1+diffW], [yc hf],'Color','red','LineWidth', 3);
+l4 = line([xc w1-diffW], [yc hf],'Color','red','LineWidth', 3);
+end
+
+xd1 = round(linspace(xc, w1-diffW, floor(0.99*dg)));
+yd1 = round(linspace(yc, hi, floor(0.99*dg)));
+
+xd2 = round(linspace(xc, 1+diffW, floor(0.99*dg)));
+yd2 = round(linspace(yc, hi, floor(0.99*dg)));
+
+xd3 = round(linspace(xc, 1+diffW, floor(0.99*dg)));
+yd3 = round(linspace(yc, hf, floor(0.99*dg)));
+
+xd4 = round(linspace(xc, w1-diffW, floor(0.99*dg)));
+yd4 = round(linspace(yc, hf, floor(0.99*dg)));
+
+flagQ1 = 0; flagQ2 = 0; flagQ3 = 0; flagQ4 = 0;
+for i = 1:length(xd1)
+    if all(currImg(yd1(i), xd1(i), :) == 0) && ~flagQ1
+        q1 = [xd1(i) yd1(i)];
+        flagQ1 = 1;
+    end
+    
+    if all(currImg(yd2(i), xd2(i), :) == 0) && ~flagQ2
+        q2 = [xd2(i) yd2(i)];
+        flagQ2 = 1;
+    end
+    
+    if all(currImg(yd3(i), xd3(i), :) == 0) && ~flagQ3
+        q3 = [xd3(i) yd3(i)];
+        flagQ3 = 1;
+    end
+    
+    if all(currImg(yd4(i), xd4(i), :) == 0) && ~flagQ4
+        q4 = [xd4(i) yd4(i)];
+        flagQ4 = 1;
+    end
+end
+
+if flagQ1 == 0
+    q1 = [w1-diffW hi];
+end
+
+if flagQ2 == 0
+    q2 = [1+diffW hi];
+end
+
+if flagQ3 == 0
+    q3 = [1+diffW hf];
+end
+
+if flagQ4 == 0
+    q4 = [w1-diffW hf];
+end
+
+y0 = max(q1(2), q2(2));
+y1 = min(q3(2), q4(2));
+x0 = max(q2(1), q3(1));
+x1 = min(q1(1), q4(1));
+
+if plotFig
+xcrds = [x0 x0 x1 x1 x0];
+ycrds = [y0 y1 y1 y0 y0];
+plot(xcrds, ycrds, 'b-', 'LineWidth', 3);
 end
 
 end

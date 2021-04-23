@@ -1,4 +1,4 @@
-function [yoffSet, xoffSet, corrMat, centro] = edges_and_correlation_v2(image1, image2, n_case, redLimits, cropSize, redArea)
+function [yoffSet, xoffSet, corrMat, centro, centro_old] = edges_and_correlation_v2(image1, image2, n_case, redLimits, cropSize, redArea)
 
 if size(image1,3)==3
     image1=rgb2gray(image1);
@@ -149,6 +149,8 @@ j=c3;
 
 ptCenterX = floor(i - (r2/2));
 ptCenterY = floor(j - (c2/2));
+
+centro_old = [ptCenterX, ptCenterY];
 
 if exist('redArea', 'var')
     redCorrMat = cropCorrMat.*redArea;

@@ -2,7 +2,7 @@ function [resCentro, resProb, resIn, resArea, resDist, visDist, visProb, visIn, 
 
 %geoAdjacencies, ftGeoOwn, ftGeoAdj
 run_template_matching = 1;
-if run_template_matching
+if run_template_matching && ~exist(['Correlation_Matrices\matriz_corre_img' num2str(imgCnt) '.mat'], 'file')
 tic;
 fprintf('\nRunning Correlation Matrix...\n');
 
@@ -212,17 +212,17 @@ for ponY = 1:nP
 %         figure; mesh(corrMat);
 %         resultsMatrix{ponY, ponX}.corr = max(corrMat(:));
         
-        save(['matriz_corre_img' num2str(imgCnt) '.mat'], 'posMatrix', 'resultsMatrix', 'pX', 'pY', 'ponY', 'ponX', 'BW_Template', 'cropSize');
+        save(['Correlation_Matrices\matriz_corre_img' num2str(imgCnt) '.mat'], 'posMatrix', 'resultsMatrix', 'pX', 'pY', 'ponY', 'ponX', 'BW_Template', 'cropSize');
         
         pX = pX + 2*dx;
     end
     pY = pY + 2*dy;
 end
 fprintf('\Tempo total = %f\n\n', toc);
-save(['matriz_corre_img' num2str(imgCnt) '.mat'], 'posMatrix', 'resultsMatrix', 'pX', 'pY', 'ponY', 'ponX', 'BW_Template', 'cropSize');
+save(['Correlation_Matrices\matriz_corre_img' num2str(imgCnt) '.mat'], 'posMatrix', 'resultsMatrix', 'pX', 'pY', 'ponY', 'ponX', 'BW_Template', 'cropSize');
 dbg = 1;
 else
-   load(['matriz_corre_img' num2str(imgCnt) '.mat']); 
+   load(['Correlation_Matrices\matriz_corre_img' num2str(imgCnt) '.mat']); 
 end
 
 %% resultado real
@@ -342,8 +342,8 @@ z = z./max(z(:));
 % set(gca,'XTickLabel',a,'fontsize',15);
 
 zCut = z;
-zCut(zCut > 0.3) = 1;
-zCut(zCut <= 0.3) = 0;
+zCut(zCut > 0.4) = 1;
+zCut(zCut <= 0.4) = 0;
 % figure;
 % surf(yCoords,xCoords,zCut);
 % title('Potential UAV Area', 'fontsize', 20);
