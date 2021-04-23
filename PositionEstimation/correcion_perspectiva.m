@@ -181,6 +181,8 @@ w2 = boxout.width/2;
 h2 = boxout.height/2;
 xcrds = xcentre + [w2 w2 -w2 -w2 w2];   % box corner coords
 ycrds = ycentre + [h2 -h2 -h2 h2 h2];
+upperLim = floor(ycentre+h2);
+bottomLim = floor(ycentre-h2);
 hold on;
 plot(xcrds, ycrds, 'g-', 'LineWidth', 3);
 end
@@ -210,7 +212,7 @@ c2 = polyfit([xc 1+diffW], [yc 1+diffH], 1);
 yc2 = round(linspace(xc, 1, floor(0.95*dg)));
 yc2 = c2(1)*yc2 + c2(2);
 
-hi = max(round(yc1(end)), 1);
+hi = max([round(yc1(end)) 1]);
 
 c3 = polyfit([xc 1+diffW], [yc h1-diffH], 1);
 yc3 = round(linspace(xc, 1, floor(0.99*dg)));
@@ -220,7 +222,7 @@ c4 = polyfit([xc w1-diffW], [yc h1-diffH], 1);
 yc4 = round(linspace(xc, w1, floor(0.99*dg)));
 yc4 = c4(1)*yc4 + c4(2);
 
-hf = min(round(yc3(end)), h1);
+hf = min([round(yc3(end)) h1]);
 
 diffW = 0;
 
@@ -245,22 +247,22 @@ yd4 = round(linspace(yc, hf, floor(0.99*dg)));
 
 flagQ1 = 0; flagQ2 = 0; flagQ3 = 0; flagQ4 = 0;
 for i = 1:length(xd1)
-    if all(currImg(yd1(i), xd1(i), :) == 0) && ~flagQ1
+    if all(currImg(yd1(i), xd1(i), :) == 0) && ~flagQ1 %&& (yd1(i) < yc+h2)
         q1 = [xd1(i) yd1(i)];
         flagQ1 = 1;
     end
     
-    if all(currImg(yd2(i), xd2(i), :) == 0) && ~flagQ2
+    if all(currImg(yd2(i), xd2(i), :) == 0) && ~flagQ2 %&& (yd2(i) < yc+h2)
         q2 = [xd2(i) yd2(i)];
         flagQ2 = 1;
     end
     
-    if all(currImg(yd3(i), xd3(i), :) == 0) && ~flagQ3
+    if all(currImg(yd3(i), xd3(i), :) == 0) && ~flagQ3 %&& (yd3(i) < yc+h2)
         q3 = [xd3(i) yd3(i)];
         flagQ3 = 1;
     end
     
-    if all(currImg(yd4(i), xd4(i), :) == 0) && ~flagQ4
+    if all(currImg(yd4(i), xd4(i), :) == 0) && ~flagQ4 %&& (yd4(i) < yc+h2)
         q4 = [xd4(i) yd4(i)];
         flagQ4 = 1;
     end
@@ -282,8 +284,8 @@ if flagQ4 == 0
     q4 = [w1-diffW hf];
 end
 
-y0 = max(q1(2), q2(2));
-y1 = min(q3(2), q4(2));
+y0 = max([q1(2) q2(2) bottomLim]);
+y1 = min([q3(2) q4(2) upperLim]);
 x0 = max(q2(1), q3(1));
 x1 = min(q1(1), q4(1));
 

@@ -1,0 +1,35 @@
+IMAGE - THETA
+img1 - 161
+img2 - 154
+img3 - 153
+img4 - 152
+img5 - 154
+img6 - 162
+img7 - 173
+img8 - 179
+img9 - -179
+img10 - -175
+img11 - 173
+img12 - 162
+img13 - 162
+img14 - 155
+img15 - 151
+img16 - 154
+img17 - 159
+img18 - 161
+img19 - 173
+img20 - 175
+img21 - 174
+img22 - 169
+img23 - 153
+img24 - 124 (flag)
+img25 - 123 (flag)
+img26 - 138
+img27 - 151
+img28 - 171
+img29 - 177
+img30 - 173
+img31 - -178
+img32 - -137 (flag)
+img33 - -101 (flag)
+img34 - -63 (flag)

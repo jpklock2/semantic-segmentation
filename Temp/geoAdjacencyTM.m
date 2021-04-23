@@ -295,14 +295,18 @@ end
 % goodResultMin = sum(idxMin == [36 37 38 39 45 46]); % imagem 2, 39 é o melhor
 % goodResultMin = sum(idxMin == [24 25 26 27 28 30 31 32 33 34 35]); % imagem 5, X é o melhor
 
-bestVisPos = [55 66 64 45 64 35 47 56 57 61];
-% 
-% % jeito novo
-idxCorreto = bestVisPos(imgCnt);
-yc = ceil(idxCorreto/nP);
-xc = mod(idxCorreto, nP);
-% yc = 1; xc = 1;
-visPos = posMatrix{yc, xc};
+if imgCnt < 0 %11
+    bestVisPos = [55 66 64 45 64 35 47 56 57 61];
+    % 
+    % % jeito novo
+    idxCorreto = bestVisPos(imgCnt);
+    yc = ceil(idxCorreto/nP);
+    xc = mod(idxCorreto, nP);
+    % yc = 1; xc = 1;
+    visPos = posMatrix{yc, xc};
+else
+    visPos = [1, 1];
+end
 
 % matriz resultados
 simMatrix = zeros(nP, nP);
@@ -317,8 +321,17 @@ for i = 1:nP
 end
 
 maxCorr = max(simMatrix(:));
-threshCorr = 0.7*maxCorr;
-coords = cell2mat(posMatrix(simMatrix >= threshCorr));
+usable = 0;
+thresh = 0.7;
+while ~usable
+    threshCorr = thresh*maxCorr;
+    coords = cell2mat(posMatrix(simMatrix >= threshCorr));
+    if size(coords, 1) < 2
+        thresh = thresh - 0.01;
+    else
+        usable = 1;
+    end
+end
 
 yCoords = linspace(cropSize(1), cropSize(3), 10000);
 xCoords = linspace(cropSize(2), cropSize(4), 10000);
