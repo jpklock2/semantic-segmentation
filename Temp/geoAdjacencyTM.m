@@ -322,11 +322,11 @@ end
 
 maxCorr = max(simMatrix(:));
 usable = 0;
-thresh = 0.7;
+thresh = 0.75;
 while ~usable
     threshCorr = thresh*maxCorr;
     coords = cell2mat(posMatrix(simMatrix >= threshCorr));
-    if size(coords, 1) < 2
+    if size(coords, 1) < 2 || ~all(std(coords))
         thresh = thresh - 0.01;
     else
         usable = 1;
@@ -355,8 +355,8 @@ z = z./max(z(:));
 % set(gca,'XTickLabel',a,'fontsize',15);
 
 zCut = z;
-zCut(zCut > 0.4) = 1;
-zCut(zCut <= 0.4) = 0;
+zCut(zCut > 0.3) = 1;
+zCut(zCut <= 0.3) = 0;
 % figure;
 % surf(yCoords,xCoords,zCut);
 % title('Potential UAV Area', 'fontsize', 20);

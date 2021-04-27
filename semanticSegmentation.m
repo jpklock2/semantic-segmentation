@@ -6,7 +6,7 @@ function [L, idx, centroidsFinal, classes, parameters, superPixels, pixelsOwn, p
 %% Define flags
 printResults = 1;
 plotsIM = 0; % 0 DON'T PLOT IMAGES | 1 PLOT COLORED SUPERPIXELS
-plotsCompare = 1; % 0 DON'T PLOT IMAGES | 1 PLOT FCM SEGMENTATION
+plotsCompare = 0; % 0 DON'T PLOT IMAGES | 1 PLOT FCM SEGMENTATION
 myFilter = myFilter2; % 0 NO FILTER | 1 BILATERAL | 2 KUWAHARA | 3 ANISIOTROPIC
 myColorSpace = 0; % 0 RGB | 1 HSV | 2 Lab | 3 sRGB
 myFeatureExtractor = 4; % 1 COLOR | 2 LBP | 3 TEXTURE (LM FILTERS) | 4 COLOR+TEXTURE | 7 GLCM | 5 AUTO-ENCODER

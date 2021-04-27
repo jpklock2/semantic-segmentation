@@ -32,6 +32,8 @@ end
 % toc
 dgb = 1;
 
+pixels = [];
+
 tic;
 % Média dos centróides
     if (myFeatureExtractor == 1 || myFeatureExtractor == 4)

@@ -2,14 +2,14 @@ if printResults
 fprintf('\nSegmenting superpixels...\n');
 end
 tic;
- [L,N] = superpixels(rgbImage, K, 'Method', 'slic');
-%      [L,N] = superpixels(rgbImage, K, 'Method', 'slic0');
+ [L,N] = superpixels(rgbImage, K, 'Method', 'slic', 'Compactness', 10, 'NumIterations', 10);
+%  [L,N] = superpixels(rgbImage, K, 'Method', 'slic0');
  idx = label2idx(L);
 %      fprintf('\nTempo para segmentaaao de K = %f superpixels: %f s\n', K, toc);
-a = 0; 
+a = 1; 
 if a
     BW = boundarymask(L);
-    figure; imshow(imoverlay(rgbImage,BW,'cyan'),'InitialMagnification',67);
+    figure; montage({rgbImage, imoverlay(rgbImage,BW,'cyan')});
 end
 %     subplot(2,4,3);
 %     if ishsv

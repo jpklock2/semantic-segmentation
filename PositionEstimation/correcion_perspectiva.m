@@ -39,8 +39,8 @@ end
 
 theta = atan2(tform.T(2,1), tform.T(2,2)) * 180 / pi;
 
-[y0, x0, y1, x1] = useful_area_v2(oldImg, currImg, theta, 1, 1);
-[y00, x00, y11, x11] = useful_area_v2(oldImg, currImg, theta, 0, 1);
+[y0, x0, y1, x1] = useful_area_v2(oldImg, currImg, theta, 1, 0);
+[y00, x00, y11, x11] = useful_area_v2(oldImg, currImg, theta, 0, 0);
 area0 = (y1-y0)*(x1-x0);
 area1 = (y11-y00)*(x11-x00);
 if (abs(theta) > 45 && abs(theta) < 135) || (abs(theta) > 225 && abs(theta) < 315)
@@ -172,6 +172,7 @@ function [y0, x0, y1, x1] = useful_area_v2(img, currImg, theta, mantainAspectRat
 if plotFig
 figure; imshow(currImg);
 hold on;
+end
 boxin.width = size(currImg, 2);
 boxin.height = size(currImg, 1);
 boxout = imRotateCrop(boxin, theta, 'AspectRatio', 'maxArea', 'Position', 0);
@@ -183,6 +184,7 @@ xcrds = xcentre + [w2 w2 -w2 -w2 w2];   % box corner coords
 ycrds = ycentre + [h2 -h2 -h2 h2 h2];
 upperLim = floor(ycentre+h2);
 bottomLim = floor(ycentre-h2);
+if plotFig
 hold on;
 plot(xcrds, ycrds, 'g-', 'LineWidth', 3);
 end

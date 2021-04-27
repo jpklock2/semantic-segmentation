@@ -131,8 +131,9 @@ fprintf('Execution time for defining clusters: %f s\n', toc);
 end
 if plotsCompare
 %     thresh = 0.15;
-%     [outputImage] = evalFunction(classesTemp, Kc, idx, rgbImage, N);
-    [outputImage] = evalFunction(classesTempJoin, KcJoin, idx, originalRgbImage, N);
+    [outputImage] = evalFunction(classesTemp, Kc, idx, rgbImage, N);
+    figure; montage({rgbImage,outputImage});
+    [outputImage] = evalFunction(classesTempJoin, KcJoin, idx, rgbImage, N);
     
 %     load(['./Images/Test/Original_Dev/Classes/im',num2str(m),'.mat']);
 %     idxLabel = label2idx(L2);
@@ -163,10 +164,10 @@ if plotsCompare
     
     figure; montage({rgbImage,outputImage});
 end
-classesTemp = classesTempJoin;
-Kc = KcJoin;
-centroids = centroidsJoin;
-Uc = UcJoin;
+% classesTemp = classesTempJoin;
+% Kc = KcJoin;
+% centroids = centroidsJoin;
+% Uc = UcJoin;
 
 % testSegment;
 
