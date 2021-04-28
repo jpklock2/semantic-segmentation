@@ -1,6 +1,7 @@
 %% Starting Code
 initCode;
-loadImageNames;
+dataset = 'SC';
+loadImageNames_BJ;
 imageNamesTemp = imageNames(2:end);
 startTime = datetime('now');
 fprintf('\nExperiment start: %s\n', startTime);
@@ -113,7 +114,7 @@ for i = 1:length(imageNamesTemp)-1
     %% Preprocessing
     fprintf('\nPreprocessing Image...\n');
     tic; 
-    [pre_geo_img, pre_uav_img]=preprocessing(crop_geo_img,scale_uav_img,...
+    [pre_geo_img, pre_uav_img]=preprocessing_BJ(crop_geo_img,scale_uav_img,...
         filter_type_preprocessing, printFigs);   
     fprintf('Execution time for Preprocessing: %f s\n', toc);
     
@@ -126,7 +127,7 @@ for i = 1:length(imageNamesTemp)-1
     %% Perspective correction 
     fprintf('\nPerspective correction Image...\n');
     tic;
-    [rot_img, util_rot_img, utilCropSize]=correcion_perspectiva(...
+    [rot_img, util_rot_img, utilCropSize]=correcion_perspectiva_BJ(...
        scale_uav_img, (frameYaw(i)), framePitch(i), frameRoll(i), framePress(i),...
        pre_geo_img, pre_uav_img, perspective_correction_type, printFigs, preprocessing_img);
     fprintf('Execution time for Perspective Correction: %f s\n', toc);
@@ -140,15 +141,15 @@ for i = 1:length(imageNamesTemp)-1
     if filter_img
         tic;
         rgbImage = util_rot_img;
-        applyFilter;
+        applyFilter_BJ;
         util_rot_img = rgbImage;
         clear rgbImage
         rgbImage = crop_geo_img;
-        applyFilter;
+        applyFilter_BJ;
         crop_geo_img = rgbImage;
         clear rgbImage
         rgbImage = pre_geo_img;
-        applyFilter;
+        applyFilter_BJ;
         pre_geo_img = rgbImage;
         clear rgbImage
         fprintf('\nPerspective correction Image: %f s\n', toc);
@@ -161,10 +162,10 @@ for i = 1:length(imageNamesTemp)-1
         tic;
         if preprocessing_img 
             
-            [yoffSet,xoffSet,Mcorr,centro] = edges_and_correlation(...
+            [yoffSet,xoffSet,Mcorr,centro] = edges_and_correlation_BJ(...
                                       util_rot_img, pre_geo_img, n_case,printFigsCorr);
         else
-            [yoffSet,xoffSet,Mcorr,centro] = edges_and_correlation(...
+            [yoffSet,xoffSet,Mcorr,centro] = edges_and_correlation_BJ(...
                                       util_rot_img, crop_geo_img, n_case,printFigsCorr);
         end
     

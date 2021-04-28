@@ -1,7 +1,7 @@
 %% Starting Code
 initCode;
 dataset = 'SP';
-loadImageNames;
+loadImageNames_BJ;
 imageNamesTemp = imageNames(2:end);
 startTime = datetime('now');
 fprintf('\nExperiment start: %s\n', startTime);
@@ -95,7 +95,7 @@ for i = 1:length(imageNamesTemp)
     fprintf('\nGetting Geo SubImage...\n');
     tic;
     hab=1;
-    [crop_geo_img,crop_geo_img_withPoint,cmap,R,bbox,cropSize]=get_geo_subimg(lat(i,1),lon(i,1),...
+    [crop_geo_img,crop_geo_img_withPoint,cmap,R,bbox,cropSize]=get_geo_subimg_BJ(lat(i,1),lon(i,1),...
         tamx_calc, tamy_calc, geo_img, cmap, R_copy, bbox, hab);
     
     fprintf('Execution time for Geo SubImage: %f s\n', toc);
@@ -108,7 +108,7 @@ for i = 1:length(imageNamesTemp)
     %% Preprocessing
     fprintf('\nPreprocessing Image...\n');
     tic; 
-    [pre_geo_img, pre_uav_img]=preprocessing(crop_geo_img,scale_uav_img,...
+    [pre_geo_img, pre_uav_img]=preprocessing_BJ(crop_geo_img,scale_uav_img,...
         filter_type_preprocessing, printFigs);   
     fprintf('Execution time for Preprocessing: %f s\n', toc);
     
@@ -122,7 +122,7 @@ for i = 1:length(imageNamesTemp)
     fprintf('\nCorrecting Image Perspective...\n');
 %     tic;
 %     
-%     [rot_img, util_rot_img, utilCropSize]=correcion_perspectiva(...
+%     [rot_img, util_rot_img, utilCropSize]=correcion_perspectiva_BJ(...
 %        scale_uav_img, (yaw(i)-20), pitch(i), roll(i), alt(i),...
 %        pre_geo_img, pre_uav_img, perspective_correction_type, printFigs, preprocessing_img);
 %     fprintf('Execution time for Perspective Correction: %f s\n', toc);
@@ -132,7 +132,7 @@ for i = 1:length(imageNamesTemp)
 %     [x2, y2] = size(rot_img);
 %     util_rot_img =rot_img(abs(x2/2-195):abs(x2/2+195), abs(y2/2-195):abs(y2/2+195));
     
-    [rot_img, util_rot_img, utilCropSize]=correcion_perspectiva_sem(...
+    [rot_img, util_rot_img, utilCropSize]=correcion_perspectiva_sem_BJ(...
         scale_uav_img, (yaw(i)-20), pitch(i), roll(i), alt(i),...
         pre_geo_img, pre_uav_img, perspective_correction_type, printFigs,...
         preprocessing_img);
@@ -144,15 +144,15 @@ for i = 1:length(imageNamesTemp)
     if filter_img
         tic;
         rgbImage = util_rot_img;
-        applyFilter;
+        applyFilter_BJ;
         util_rot_img = rgbImage;
         clear rgbImage
         rgbImage = crop_geo_img;
-        applyFilter;
+        applyFilter_BJ;
         crop_geo_img = rgbImage;
         clear rgbImage
         rgbImage = pre_geo_img;
-        applyFilter;
+        applyFilter_BJ;
         pre_geo_img = rgbImage;
         clear rgbImage
         fprintf('\nPerspective correction Image: %f s\n', toc);
@@ -166,10 +166,10 @@ for i = 1:length(imageNamesTemp)
         tic;
         if preprocessing_img 
             
-            [yoffSet,xoffSet,Mcorr,centro] = edges_and_correlation(...
+            [yoffSet,xoffSet,Mcorr,centro] = edges_and_correlation_BJ(...
                                       util_rot_img, pre_geo_img, n_case,printFigsCorr);
         else
-            [yoffSet,xoffSet,Mcorr,centro] = edges_and_correlation(...
+            [yoffSet,xoffSet,Mcorr,centro] = edges_and_correlation_BJ(...
                                       util_rot_img, crop_geo_img, n_case,printFigsCorr);
         end
     
@@ -190,7 +190,7 @@ for i = 1:length(imageNamesTemp)
         % Calculo da latitude e longitude com base nos pixeis da img.
         [lat_srp, lon_srp] = pix2latlon(R, centro(1), centro(2));
  
-        dist1 = m_idist(lon_srp, lat_srp, lon(i,1), lat(i,1))
+        dist1 = m_idist_BJ(lon_srp, lat_srp, lon(i,1), lat(i,1))
         
 
         log_coords1 = [log_coords1; lat(i,1),lon(i,1), lat_srp, lon_srp,...
@@ -201,10 +201,8 @@ for i = 1:length(imageNamesTemp)
     end    
 end
 
-FP = find(log_coords1(:,5) > 100)
-
-
-media=sum(log_coords1(:,5))/length(log_coords1(:,5));
+% FP = find(log_coords1(:,5) > 100)
+% media=sum(log_coords1(:,5))/length(log_coords1(:,5));
 
 case1 = log_coords1(find(log_coords1(:,6) == 1),5);
 mean_case1 = mean(case1)
