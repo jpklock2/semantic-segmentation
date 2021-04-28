@@ -109,6 +109,7 @@ for i = 1:length(imageNamesTemp)
     fprintf('\nRunning Semantic Segmentation Pipeline...\n');
     [mask, maskIdx, centroids, classes, ~, adjacencies, ftOwn, ftAdj, currImage, currImagePlot] = semanticSegmentation(outf, i+1, myFilter2, classesGeo, centroidsGeo, parameters, [dimX dimY]);
     currImage = imresize(currImage, [dimX dimY], 'Bilinear');
+    currImage = imresize(currImage, 0.87, 'Bilinear');
     outputSegmentation = evalFunction(classes, length(unique(classes)), maskIdx, currImagePlot, length(classes));
     %         oldMask = mask;
     Lmask = zeros(size(mask));
@@ -173,15 +174,15 @@ for i = 1:length(imageNamesTemp)
     if filter_img
         tic;
         rgbImage = util_rot_img;
-        applyFilter;
+        applyFilter_BJ;
         util_rot_img = rgbImage;
         clear rgbImage
         rgbImage = crop_geo_img;
-        applyFilter;
+        applyFilter_BJ;
         crop_geo_img = rgbImage;
         clear rgbImage
         rgbImage = pre_geo_img;
-        applyFilter;
+        applyFilter_BJ;
         pre_geo_img = rgbImage;
         clear rgbImage
         fprintf('\nPerspective correction Image: %f s\n', toc);
@@ -191,24 +192,26 @@ for i = 1:length(imageNamesTemp)
             geoAdjacencies, adjacencies, classes, Lmask, util_mask, LmaskGeo,...
             cropSize, utilCropSize, parameters, myFilter2, geo_img, util_rot_mask, R_copy, lon(i,1), lat(i,1), i, rotPlotImage, rotOutputSegmentation);
         
-        [yoffSet, xoffSet, Mcorr, centro, centro_old] = edges_and_correlation_v2(util_rot_img, crop_geo_img, cases(n_case), resArea, cropSize, redArea);
-        
-        centro;
-        retorno = Mcorr;
     
     %% Edges and Correlation
     
-    for n_case=1:3
+    for n_case=8:8
         fprintf('\nGetting Edges and Correlation Matrix...\n');
         fprintf('Case %d:\n', n_case);
         tic;
+        
+        [yoffSet, xoffSet, Mcorr, centro, centro_old] = edges_and_correlation_v2(...
+            util_rot_img, crop_geo_img, n_case, resArea, cropSize, redArea);
+        
+        centro;
+        retorno = Mcorr;
         if preprocessing_img 
             
-            [yoffSet,xoffSet,Mcorr,centro] = edges_and_correlation(...
-                                      util_rot_img, pre_geo_img, n_case,printFigsCorr);
+            [yoffSet, xoffSet, Mcorr, centro, centro_old] = edges_and_correlation_v2(...
+            util_rot_img, pre_geo_img, n_case, resArea, cropSize, redArea);
         else
-            [yoffSet,xoffSet,Mcorr,centro] = edges_and_correlation(...
-                                      util_rot_img, crop_geo_img, n_case,printFigsCorr);
+            [yoffSet, xoffSet, Mcorr, centro, centro_old] = edges_and_correlation_v2(...
+            util_rot_img, crop_geo_img, n_case, resArea, cropSize, redArea);
         end
     
         fprintf('Execution time for Edges and Correlation: %f s\n', toc);
@@ -238,20 +241,14 @@ for i = 1:length(imageNamesTemp)
 
     end    
 end
+case8 = log_coords1(find(log_coords1(:,6) == 8),5);
+mean_case8 = mean(case8)
 
-FP = find(log_coords1(:,5) > 100)
-
-
-media=sum(log_coords1(:,5))/length(log_coords1(:,5));
-
-case1 = log_coords1(find(log_coords1(:,6) == 1),5);
-mean_case1 = mean(case1)
-
-case2 = log_coords1(find(log_coords1(:,6) == 2),5);
-mean_case2 = mean(case2)
-
-case3 = log_coords1(find(log_coords1(:,6) == 3),5);
-mean_case3 = mean(case3)
+% case2 = log_coords1(find(log_coords1(:,6) == 2),5);
+% mean_case2 = mean(case2)
+% 
+% case3 = log_coords1(find(log_coords1(:,6) == 3),5);
+% mean_case3 = mean(case3)
 % 
 % case4 = log_coords1(find(log_coords1(:,6) == 4),5);
 % mean_case4 = mean(case4)
@@ -271,4 +268,4 @@ mean_case3 = mean(case3)
 % case9 = log_coords1(find(log_coords1(:,6) == 9),5);
 % mean_case9 = mean(case9)
 
-figure; boxplot([case1,case2,case3])
+figure; boxplot(case8)

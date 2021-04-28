@@ -26,8 +26,21 @@ end
 filtro = 'canny';
 kValue = 0.7;
 sigmaValue = sqrt(2);
+entropia_Target = entropy(Target);
+entropia_Template = entropy(Template);
+sigmaValue_Target = sqrt(entropia_Target/2);
+sigmaValue_Template = sqrt(entropia_Template/2);
 
 switch n_case
+    
+    case 8 % filtro std, sigma sqrt(entropia_Template/2), canny 
+        fprintf('Std Filter + Canny \n');
+        Template_filt = normalize_img(stdfilt(Template,ones(15)));
+        Target_filt = normalize_img(stdfilt(Target,ones(15)));
+
+        BW_Template = edge(Template_filt, filtro, [], sigmaValue_Template);
+        BW_Target = edge(Target_filt, filtro, [], sigmaValue_Target);
+        
     case 1 % filtro std, sigma sqrt(2), canny 
         fprintf('Std Filter + Canny + kValue\n');
         Template_filt = normalize_img(stdfilt(Template,ones(9)));
