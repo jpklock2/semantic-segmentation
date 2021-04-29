@@ -78,7 +78,7 @@ syG = size(geo_img, 1);
 sxG = size(geo_img, 2);
 tYG = cropSize(3)-cropSize(1);
 tXG = cropSize(4)-cropSize(2);
-nP = 10;
+nP = 5;
 dy = round(tYG/(2*nP));
 dx = round(tXG/(2*nP));
 % nSP = length(adjacencies);
@@ -322,7 +322,7 @@ end
 
 maxCorr = max(simMatrix(:));
 usable = 0;
-thresh = 0.75;
+thresh = 0.7;
 while ~usable
     threshCorr = thresh*maxCorr;
     coords = cell2mat(posMatrix(simMatrix >= threshCorr));

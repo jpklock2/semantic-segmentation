@@ -6,7 +6,7 @@ tic;
 %  [L,N] = superpixels(rgbImage, K, 'Method', 'slic0');
  idx = label2idx(L);
 %      fprintf('\nTempo para segmentaaao de K = %f superpixels: %f s\n', K, toc);
-a = 1; 
+a = 0; 
 if a
     BW = boundarymask(L);
     figure; montage({rgbImage, imoverlay(rgbImage,BW,'cyan')});

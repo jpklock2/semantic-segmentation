@@ -230,14 +230,16 @@ for i = 1:length(imageNamesTemp)
 
         % Calculo da latitude e longitude com base nos pixeis da img.
         [lat_srp, lon_srp] = pix2latlon(R, centro(1), centro(2));
+        [lat_srp2, lon_srp2] = pix2latlon(R, centro_old(1), centro_old(2));
  
-        dist1 = m_idist(lon_srp, lat_srp, lon(i,1), lat(i,1))
+        dist1 = m_idist(lon_srp, lat_srp, lon(i,1), lat(i,1));
+        dist2 = m_idist(lon_srp2, lat_srp2, lon(i,1), lat(i,1));
         
 
-        log_coords1 = [log_coords1; lat(i,1),lon(i,1), lat_srp, lon_srp,...
-                       dist1,n_case,i];
+        log_coords1 = [log_coords1; lat(i,1), lon(i,1), lat_srp, lon_srp,...
+                       dist1, lat_srp2, lon_srp2, dist2, n_case, i];
         
-%         save log_coords1.mat log_coords1
+        save log_coords1.mat log_coords1
 
     end    
 end

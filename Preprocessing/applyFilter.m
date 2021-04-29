@@ -63,15 +63,28 @@ switch myFilter
     case 4
     % Mínimos Quadrados
 %         rgbTemp = rgbImage;
-        lambda = 3;
-        iter = 8;
-        p = 0.5;
-        eps = 0.0001;
-        lsqImage = double(ILS_LNorm(rgbImage, lambda, p, eps, iter));
-%         figure; montage({rgbImage, lsqImage, kuwaImg, diffImg});
-        rgbImage = lsqImage;
-        clear lsqImage
+%         lambda = 3;
+%         iter = 8;
+%         p = 0.5;
+%         eps = 0.0001;
+%         lsqImage = double(ILS_LNorm(rgbImage, lambda, p, eps, iter));
+% %         figure; montage({rgbImage, lsqImage, kuwaImg, diffImg});
+%         rgbImage = lsqImage;
+%         clear lsqImage
 %         figure; montage({rgbTemp,rgbImage});
+entropia_img = entropy(rgbImage);
+        minRow = std(im2double(rgbImage(:,:,1)), [], 2);
+        minCol = std(im2double(rgbImage(:,:,1)));
+        
+        lambda = entropy(rgbImage)/4;
+        gamma = mean([max(minRow) max(minCol)]);
+        iter = 2;
+        
+%         lsqImage = ILS_LNorm(im2double(rgbImage), lambda, p, eps, iter);
+        lsqImage = ILS_Welsch(im2double(rgbImage), lambda, gamma, iter);
+
+        rgbImage = im2uint8(lsqImage);
+        clear lsqImage
 
 end
 if printResults
