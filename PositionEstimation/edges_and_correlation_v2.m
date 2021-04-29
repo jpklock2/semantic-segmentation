@@ -9,13 +9,13 @@ end
 
 %Targed = geo image
 %Template = uav image
-if size(image1)>size(image2)
-    Target=image1;
-    Template=image2;
-else
+% if size(image1)>size(image2)
+%     Target=image1;
+%     Template=image2;
+% else
     Target=image2;
     Template=image1;
-end
+% end
 
 function [img_out] = normalize_img(img_in)
     max_img = max(img_in(:));

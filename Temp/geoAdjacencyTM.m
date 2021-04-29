@@ -66,9 +66,9 @@ for spix = 1:length(adjacencies)
 end
 
 rec = [y0 x0 y1 x1];
-plotMask(mask, classes, rec);
-figure; imagesc(util_mask);
-pause(0.001);
+% plotMask(mask, classes, rec);
+% figure; imagesc(util_mask);
+% pause(0.001);
 
 BW_Template = edge(util_mask, 'canny', [], sqrt(2));
 

@@ -43,7 +43,11 @@ roll=str2double(temp{7}(idx)); %f
 fprintf('\nProcessing Georeferenced Image...\n');
 tamx_calc = 300; 
 tamy_calc = 300;
-log_coords1 = [];
+if exist('log_coords1.mat', 'file')
+    load('log_coords1.mat');
+else
+    log_coords1 = [];
+end
 log_coords2 = [];
 [geo_img, cmap, R, bbox] = geotiffread('Lanzadores_2021_BJ/Images/Data_BR_SP/Mosaico.tif');
 R_copy = R;
@@ -68,7 +72,7 @@ templates = [{}];
 targets = [{}];
 allTemplateResults = [{}];
 
-for i = 1:length(imageNamesTemp)
+for i = size(log_coords1, 1)+1:length(imageNamesTemp)
     
     %% Main Loop
     fprintf('\nRunning Image %d\n', i);
@@ -200,11 +204,11 @@ for i = 1:length(imageNamesTemp)
         fprintf('Case %d:\n', n_case);
         tic;
         
-        [yoffSet, xoffSet, Mcorr, centro, centro_old] = edges_and_correlation_v2(...
-            util_rot_img, crop_geo_img, n_case, resArea, cropSize, redArea);
+%         [yoffSet, xoffSet, Mcorr, centro, centro_old] = edges_and_correlation_v2(...
+%             util_rot_img, crop_geo_img, n_case, resArea, cropSize, redArea);
         
-        centro;
-        retorno = Mcorr;
+%         centro;
+%         retorno = Mcorr;
         if preprocessing_img 
             
             [yoffSet, xoffSet, Mcorr, centro, centro_old] = edges_and_correlation_v2(...
