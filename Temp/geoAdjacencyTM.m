@@ -227,27 +227,27 @@ end
 
 %% resultado real
 % load R.mat;
-results = zeros(size(posMatrix));
-% currResult = 2;
-for k = 1:size(posMatrix, 1)
-    for j = 1:size(posMatrix, 2)
-        [lat_res, lon_res] = pix2latlon(R, posMatrix{k, j}(1), posMatrix{k, j}(2));
-        results(k,j) = m_idist(lon_res, lat_res, lon, lat);
-    end
-end
-[droneX, droneY] = find(results == min(min(results)), 1);
-drone = posMatrix{droneX, droneY};
+% results = zeros(size(posMatrix));
+% % currResult = 2;
+% for k = 1:size(posMatrix, 1)
+%     for j = 1:size(posMatrix, 2)
+%         [lat_res, lon_res] = pix2latlon(R, posMatrix{k, j}(1), posMatrix{k, j}(2));
+%         results(k,j) = m_idist(lon_res, lat_res, lon, lat);
+%     end
+% end
+% [droneX, droneY] = find(results == min(min(results)), 1);
+% drone = posMatrix{droneX, droneY};
 % resRes = 
 
 % expandedResults
-expandedPos = [linspace(cropSize(1), cropSize(3), 100)' linspace(cropSize(2), cropSize(4), 100)'];
-expandedResults = zeros(100);
-for k = 1:100
-    for j = 1:100
-        [lat_res, lon_res] = pix2latlon(R, expandedPos(k, 1), expandedPos(j, 2));
-        expandedResults(k,j) = m_idist(lon_res, lat_res, lon, lat);
-    end
-end
+% expandedPos = [linspace(cropSize(1), cropSize(3), 100)' linspace(cropSize(2), cropSize(4), 100)'];
+% expandedResults = zeros(100);
+% for k = 1:100
+%     for j = 1:100
+%         [lat_res, lon_res] = pix2latlon(R, expandedPos(k, 1), expandedPos(j, 2));
+%         expandedResults(k,j) = m_idist(lon_res, lat_res, lon, lat);
+%     end
+% end
 
 % mapa completo
 % plotMask(maskGeo, classesGeo, resultsMatrix{droneX, droneY}.rec, [], [], LmaskGeo, cropSize, drone);
@@ -322,11 +322,11 @@ end
 
 maxCorr = max(simMatrix(:));
 usable = 0;
-thresh = 0.7;
+thresh = 0.8;
 while ~usable
     threshCorr = thresh*maxCorr;
     coords = cell2mat(posMatrix(simMatrix >= threshCorr));
-    if size(coords, 1) < 2 || ~all(std(coords))
+    if size(coords, 1) < 3 || ~all(std(coords))
         thresh = thresh - 0.01;
     else
         usable = 1;
@@ -355,8 +355,8 @@ z = z./max(z(:));
 % set(gca,'XTickLabel',a,'fontsize',15);
 
 zCut = z;
-zCut(zCut > 0.3) = 1;
-zCut(zCut <= 0.3) = 0;
+zCut(zCut > 0.6) = 1;
+zCut(zCut <= 0.6) = 0;
 % figure;
 % surf(yCoords,xCoords,zCut);
 % title('Potential UAV Area', 'fontsize', 20);
@@ -365,15 +365,15 @@ zCut(zCut <= 0.3) = 0;
 % a = get(gca,'XTickLabel');
 % set(gca,'XTickLabel',a,'fontsize',15);
 
-[yMinRes, xMinRes] = find(expandedResults == min(expandedResults(:)), 1);
-bestResult = [expandedPos(yMinRes, 1) expandedPos(xMinRes, 2)];
-errY = abs(yCoords-bestResult(1));
-yRes = find(errY == min(errY), 1);
-errX = abs(xCoords-bestResult(2));
-xRes = find(errX == min(errX), 1);
+% [yMinRes, xMinRes] = find(expandedResults == min(expandedResults(:)), 1);
+% bestResult = [expandedPos(yMinRes, 1) expandedPos(xMinRes, 2)];
+% errY = abs(yCoords-bestResult(1));
+% yRes = find(errY == min(errY), 1);
+% errX = abs(xCoords-bestResult(2));
+% xRes = find(errX == min(errX), 1);
 
-zRes = z(xRes, yRes);
-zResCut = zCut(xRes, yRes);
+% zRes = z(xRes, yRes);
+% zResCut = zCut(xRes, yRes);
 
 cutAreaY = X1(logical(zCut));
 cutAreaX = X2(logical(zCut));
@@ -395,13 +395,13 @@ for i = 1:size(allPositives, 1)
 end
 
 if imgCnt < 0 %11
-    errY = abs(yCoords-visPos(1));
-    yRes = find(errY == min(errY), 1);
-    errX = abs(xCoords-visPos(2));
-    xRes = find(errX == min(errX), 1);
-
-    zVis = z(xRes, yRes);
-    zVisCut = zCut(xRes, yRes);
+%     errY = abs(yCoords-visPos(1));
+%     yRes = find(errY == min(errY), 1);
+%     errX = abs(xCoords-visPos(2));
+%     xRes = find(errX == min(errX), 1);
+% 
+%     zVis = z(xRes, yRes);
+%     zVisCut = zCut(xRes, yRes);
 else
     zVis = 1e5;
     zVisCut = 0;
@@ -419,7 +419,8 @@ dbg = 1;
 % a = get(gca,'XTickLabel');
 % set(gca,'XTickLabel',a,'fontsize',15);
 
-
+zRes = 0;
+zResCut = 0;
 
 resCentro = mu;
 resProb = zRes;
