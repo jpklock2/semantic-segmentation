@@ -92,7 +92,7 @@ for i = 1:length(imageNamesTemp)-1
         fprintf('\nGeoreferenced data found, loading data...\n\n');
         load(['geoData_filter_' dataset '_' num2str(myFilter2) '.mat']);
     else
-        [maskGeo, maskIdxGeo, centroidsGeo, classesGeo, parameters, geoAdjacencies, ftGeoOwn, ftGeoAdj] = semanticSegmentation('Lanzadores_2021_BJ/Images/Data_BR_SP/Mosaico.tif', 1, myFilter2);
+        [maskGeo, maskIdxGeo, centroidsGeo, classesGeo, parameters, geoAdjacencies, ftGeoOwn, ftGeoAdj] = semanticSegmentation('Images/Data_Suecia/ortho_19comp.jpg', 1, myFilter2, dataset);
         LmaskGeo = zeros(size(maskGeo));
         for mx = 1:length(classesGeo)
             LmaskGeo(maskGeo == mx) = classesGeo(mx);
@@ -102,7 +102,7 @@ for i = 1:length(imageNamesTemp)-1
     
     %% Semantic Mask - Training UAV Image
     fprintf('\nRunning Semantic Segmentation Pipeline...\n');
-    [mask, maskIdx, centroids, classes, ~, adjacencies, ftOwn, ftAdj, currImage, currImagePlot] = semanticSegmentation(outf, i+1, myFilter2, classesGeo, centroidsGeo, parameters, [dimX dimY]);
+    [mask, maskIdx, centroids, classes, ~, adjacencies, ftOwn, ftAdj, currImage, currImagePlot] = semanticSegmentation(outf, i+1, myFilter2, dataset, classesGeo, centroidsGeo, parameters, [dimX dimY]);
     currImage = imresize(currImage, [dimX dimY], 'Bilinear');
     outputSegmentation = evalFunction(classes, length(unique(classes)), maskIdx, currImagePlot, length(classes));
     %         oldMask = mask;
@@ -120,6 +120,7 @@ for i = 1:length(imageNamesTemp)-1
     x_corte_ortho = (a1(i) - (dimWinEast/2));
     y_corte_ortho = (b1(i) - (dimWinNorth/2));
     cropSize = [x_corte_ortho y_corte_ortho dimWinEast-1 dimWinNorth-1];
+    cropSize_2 = [y_corte_ortho x_corte_ortho (y_corte_ortho+dimWinNorth-1) (x_corte_ortho+dimWinEast-1)];
     crop_geo_img=imcrop(geo_img,[x_corte_ortho y_corte_ortho dimWinEast-1 dimWinNorth-1]);
     fprintf('Execution time for Geo SubImage: %f s\n', toc);
     
@@ -195,7 +196,7 @@ for i = 1:length(imageNamesTemp)-1
     R_copy = 0;
     [resCentro, resProb, resIn, resArea, resDist, visDist, visProb, visIn, redArea] = geoAdjacencyTM(...
         geoAdjacencies, adjacencies, classes, Lmask, util_mask, LmaskGeo,...
-        cropSize, utilCropSize, parameters, myFilter2, geo_img, util_rot_mask, R_copy, frameLong(i,1), frameLat(i,1), i, rotPlotImage, rotOutputSegmentation);
+        cropSize_2, utilCropSize, parameters, myFilter2, geo_img, util_rot_mask, R_copy, frameLong(i,1), frameLat(i,1), i, rotPlotImage, rotOutputSegmentation);
         
     
     %% Edges and Correlation
@@ -208,10 +209,10 @@ for i = 1:length(imageNamesTemp)-1
         if preprocessing_img 
             
             [yoffSet, xoffSet, Mcorr, centro, centro_old] = edges_and_correlation_v2(...
-            util_rot_img, pre_geo_img, n_case, resArea, cropSize, redArea);
+            util_rot_img, pre_geo_img, n_case, redArea);
         else
             [yoffSet, xoffSet, Mcorr, centro, centro_old] = edges_and_correlation_v2(...
-            util_rot_img, crop_geo_img, n_case, resArea, cropSize, redArea);
+            util_rot_img, crop_geo_img, n_case, redArea);
         end
     
         fprintf('Execution time for Edges and Correlation: %f s\n', toc);

@@ -1,4 +1,4 @@
-function [yoffSet, xoffSet, corrMat, centro, centro_old] = edges_and_correlation_v2(image1, image2, n_case, redLimits, cropSize, redArea)
+function [yoffSet, xoffSet, corrMat, centro, centro_old] = edges_and_correlation_v2(image1, image2, n_case, redArea)
 
 if size(image1,3)==3
     image1=rgb2gray(image1);

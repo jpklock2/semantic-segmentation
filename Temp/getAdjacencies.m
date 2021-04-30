@@ -21,7 +21,11 @@ applyFilter;
 [x, y, ~] = size(rgbImage);
 % K = 2*round((x/100) * (y/100));
 % K = round((x/100) * (y/100));
-K = round((x/50) * (y/50));
+if x > 100 || y > 100
+    K = round((x/50) * (y/50));
+else
+    K = round((x/10) * (y/10));
+end
 
 % Segmentando super pixels
 superpixelSegmentation;

@@ -15,8 +15,11 @@
     rgbImage = imresize(rgbImageTemp,scaleSize,'Bilinear'); % diminui o tamanho da imagem para diminuir os calculos
 %     rgbImage = rgbImageTemp;
  else
-%     rgbImage = rgbImageTemp;
-    rgbImage = imresize(rgbImageTemp, 0.25); % diminui o tamanho da imagem para diminuir os calculos
+     if strcmp(dataset, 'SC_segmentation')
+        rgbImage = rgbImageTemp;
+     else
+        rgbImage = imresize(rgbImageTemp, 0.25); % diminui o tamanho da imagem para diminuir os calculos
+     end
  end
  originalRgbImage = rgbImage;
  clear rgbImageTemp
