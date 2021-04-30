@@ -38,9 +38,6 @@ b3=POSICAOPIOBJ.e00;
 
 %% Reading Georeferenced Image
 fprintf('\nProcessing Georeferenced Image...\n');
-%Define el tamanho del recorte de la imagen georeferenciada 
-tamx_calc = 600;
-tamy_calc = 600;
 [geo_img, cmap] = imread('Images/Data_Suecia/ortho_19comp.jpg');
 
 %% Calculating Sensor Informations

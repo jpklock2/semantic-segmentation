@@ -12,8 +12,8 @@ for k = 2:30
     jotas = [jotas; median(jotasInd)];
 end
 Kc = knee_pt(jotas);
-if Kc <= 0
-    Kc = 1;
+if Kc <= 1
+    Kc = 2;
 end
 % Kc = 7;
 % for Kc = 20:-1:10
