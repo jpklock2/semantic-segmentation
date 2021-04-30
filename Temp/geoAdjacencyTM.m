@@ -255,7 +255,7 @@ end
 % end
 % [droneX, droneY] = find(results == min(min(results)), 1);
 % drone = posMatrix{droneX, droneY};
-% % resRes = 
+% resRes = 
 
 % expandedResults
 % expandedPos = [linspace(cropSize(1), cropSize(3), 100)' linspace(cropSize(2), cropSize(4), 100)'];
@@ -340,7 +340,7 @@ end
 
 maxCorr = max(simMatrix(:));
 usable = 0;
-thresh = 0.8; %0.75
+thresh = 0.8;
 while ~usable
     threshCorr = thresh*maxCorr;
     coords = cell2mat(posMatrix(simMatrix >= threshCorr));
@@ -373,8 +373,8 @@ z = z./max(z(:));
 % set(gca,'XTickLabel',a,'fontsize',15);
 
 zCut = z;
-zCut(zCut > 0.3) = 1;
-zCut(zCut <= 0.3) = 0;
+zCut(zCut > 0.6) = 1;
+zCut(zCut <= 0.6) = 0;
 % figure;
 % surf(yCoords,xCoords,zCut);
 % title('Potential UAV Area', 'fontsize', 20);
