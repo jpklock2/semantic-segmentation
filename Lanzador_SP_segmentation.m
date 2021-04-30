@@ -9,10 +9,10 @@ fprintf('\nExperiment start: %s\n', startTime);
 %% Configuration Code
 printFigs = 0; %mostrar figuras
 printFigsCorr = 0; %mostrar figuras de correlaçao
-filter_img = 1; %aplica filtro sobre as imagens UAV e Geo
+filter_img = 0; %aplica filtro sobre as imagens UAV e Geo
 myFilter = 4; % 1 NO FILTER | 3 BILATERAL | 2 KUWAHARA | 5 ANISIOTROPIC | 4 ILS - Tipos de filtros para reduzir textura
 myFilter2 = 3; % 1 NO FILTER | 3 BILATERAL | 2 KUWAHARA | 5 ANISIOTROPIC | 4 ILS
-preprocessing_img = 1; %se o template matching vai com imagem preprocessadas ou nao
+preprocessing_img = 0; %se o template matching vai com imagem preprocessadas ou nao
 filter_type_preprocessing = 2; % 1 MEDIA FILTER | 2 ILS - tipo de filtro
 perspective_correction_type = 1; % 1 PARAMETRIC_LOG | 2 KEY_POINTS - tipo de corecçao de perspertiva
 edge_type = 1; %futuramente para escolher o melhor extrator de borda
@@ -149,8 +149,8 @@ for i = 1:length(imageNamesTemp)
     tic;
     
     mask = imresize(mask, [size(pre_uav_img, 1) size(pre_uav_img, 2)]);
-        Lmask = imresize(Lmask, [size(pre_uav_img, 1) size(pre_uav_img, 2)]);
-        [rot_img, util_rot_img, rot_mask, util_rot_mask, util_mask, utilCropSize, currImage, rotPlotImage, rotOutputSegmentation]=correcion_perspectiva_segmentation(...
+    Lmask = imresize(Lmask, [size(pre_uav_img, 1) size(pre_uav_img, 2)]);
+    [rot_img, util_rot_img, rot_mask, util_rot_mask, util_mask, utilCropSize, currImage, rotPlotImage, rotOutputSegmentation]=correcion_perspectiva_segmentation(...
             scale_uav_img, (yaw(i)-20), pitch(i), roll(i), alt(i), Lmask, mask, currImage, currImagePlot, outputSegmentation, pre_geo_img, pre_uav_img, perspective_correction_type,preprocessing_img);
     fprintf('Execution time for Perspective Correction: %f s\n', toc);
     
@@ -189,8 +189,8 @@ for i = 1:length(imageNamesTemp)
     end
     
     [resCentro, resProb, resIn, resArea, resDist, visDist, visProb, visIn, redArea] = geoAdjacencyTM(...
-            geoAdjacencies, adjacencies, classes, Lmask, util_mask, LmaskGeo,...
-            cropSize, utilCropSize, parameters, myFilter2, geo_img, util_rot_mask, R_copy, lon(i,1), lat(i,1), i, rotPlotImage, rotOutputSegmentation);
+        geoAdjacencies, adjacencies, classes, Lmask, util_mask, LmaskGeo,...
+        cropSize, utilCropSize, parameters, myFilter2, geo_img, util_rot_mask, R_copy, lon(i,1), lat(i,1), i, rotPlotImage, rotOutputSegmentation);
         
     
     %% Edges and Correlation
@@ -200,11 +200,6 @@ for i = 1:length(imageNamesTemp)
         fprintf('Case %d:\n', n_case);
         tic;
         
-        [yoffSet, xoffSet, Mcorr, centro, centro_old] = edges_and_correlation_v2(...
-            util_rot_img, crop_geo_img, n_case, resArea, cropSize, redArea);
-        
-        centro;
-        retorno = Mcorr;
         if preprocessing_img 
             
             [yoffSet, xoffSet, Mcorr, centro, centro_old] = edges_and_correlation_v2(...

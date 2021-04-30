@@ -9,6 +9,9 @@
 %  currentImage = strtrim(imageNames{m});   
  rgbImageTemp = imread(imagePath); % im2double() - converte pixels para double
  if m > 1
+     if size(rgbImageTemp,3)~=3
+         rgbImageTemp = cat(3, rgbImageTemp, rgbImageTemp, rgbImageTemp);
+    end
     rgbImage = imresize(rgbImageTemp,scaleSize,'Bilinear'); % diminui o tamanho da imagem para diminuir os calculos
 %     rgbImage = rgbImageTemp;
  else

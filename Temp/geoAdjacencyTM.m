@@ -2,7 +2,13 @@ function [resCentro, resProb, resIn, resArea, resDist, visDist, visProb, visIn, 
 
 %geoAdjacencies, ftGeoOwn, ftGeoAdj
 run_template_matching = 1;
-if run_template_matching && ~exist(['Correlation_Matrices\matriz_corre_img' num2str(imgCnt) '.mat'], 'file')
+if R == 0
+    name = ['Correlation_Matrices\matriz_corre_img' num2str(imgCnt) '_SC_segmentation' '.mat'];
+else
+    name = ['Correlation_Matrices\matriz_corre_img' num2str(imgCnt) '.mat'];
+end
+
+if run_template_matching && ~exist(name, 'file')
 tic;
 fprintf('\nRunning Correlation Matrix...\n');
 
@@ -66,9 +72,9 @@ for spix = 1:length(adjacencies)
 end
 
 rec = [y0 x0 y1 x1];
-plotMask(mask, classes, rec);
-figure; imagesc(util_mask);
-pause(0.001);
+% plotMask(mask, classes, rec);
+% figure; imagesc(util_mask);
+% pause(0.001);
 
 BW_Template = edge(util_mask, 'canny', [], sqrt(2));
 
@@ -78,7 +84,7 @@ syG = size(geo_img, 1);
 sxG = size(geo_img, 2);
 tYG = cropSize(3)-cropSize(1);
 tXG = cropSize(4)-cropSize(2);
-nP = 10;
+nP = 5;
 dy = round(tYG/(2*nP));
 dx = round(tXG/(2*nP));
 % nSP = length(adjacencies);
@@ -122,7 +128,7 @@ for ponY = 1:nP
         if x0 < 1; xc = -(1-x0); x0 = 1; x1 = sx; elseif x1 > sxG; xc = x1-sxG; x0 = sxG-sx; x1 = sxG; end
         subImg = geo_img(y0:y1, x0:x1, :);
         [newGeoAdjacencies, ~, ~, maskGeoCrop, classesGeoCrop, idxGeoCrop] = getAdjacencies(subImg, parameters, filter);
-        title(['Figure X = ' num2str(ponX) ', Y = ' num2str(ponY)]);
+%         title(['Figure X = ' num2str(ponX) ', Y = ' num2str(ponY)]);
         
 %         [outputImage1] = evalFunction(classes, length(unique(classes)), maskIdx, plotImg, length(classes));
 %         [outputImage2] = evalFunction(classesGeoCrop, length(unique(classesGeoCrop)), idxGeoCrop, subImg, length(classesGeoCrop));
@@ -196,7 +202,8 @@ for ponY = 1:nP
 %         title(['Figure X = ' num2str(ponX) ', Y = ' num2str(ponY)]);
         
         subImage.targ = BW_Target;
-        resultsMatrix{ponY, ponX}.sub = subImage;
+        resultsMatrix{ponY, ponX}.sub = subImage; %para mostrar os
+%         resultados
         
         BW_Template_mean=BW_Template-mean(mean(BW_Template));
         BW_Target_mean=BW_Target-mean(mean(BW_Target));
@@ -219,35 +226,46 @@ for ponY = 1:nP
     pY = pY + 2*dy;
 end
 fprintf('\Tempo total = %f\n\n', toc);
-save(['Correlation_Matrices\matriz_corre_img' num2str(imgCnt) '.mat'], 'posMatrix', 'resultsMatrix', 'pX', 'pY', 'ponY', 'ponX', 'BW_Template', 'cropSize');
+if R == 0
+    save(['Correlation_Matrices\matriz_corre_img' num2str(imgCnt) '_SC_segmentation' '.mat'], 'posMatrix', 'resultsMatrix', 'pX', 'pY', 'ponY', 'ponX', 'BW_Template', 'cropSize');
+else
+    save(['Correlation_Matrices\matriz_corre_img' num2str(imgCnt) '.mat'], 'posMatrix', 'resultsMatrix', 'pX', 'pY', 'ponY', 'ponX', 'BW_Template', 'cropSize');
+end
+
+% clearvars posMatrix resultsMatrix pX pY ponY ponX BW_Template cropSize
 dbg = 1;
 else
-   load(['Correlation_Matrices\matriz_corre_img' num2str(imgCnt) '.mat']); 
+    if R == 0
+        load(['Correlation_Matrices\matriz_corre_img' num2str(imgCnt) '_SC_segmentation' '.mat']); 
+    else
+        load(['Correlation_Matrices\matriz_corre_img' num2str(imgCnt) '.mat']);
+    end
 end
 
 %% resultado real
+% load(['Correlation_Matrices\matriz_corre_img' num2str(imgCnt) '.mat']);
 % load R.mat;
-results = zeros(size(posMatrix));
-% currResult = 2;
-for k = 1:size(posMatrix, 1)
-    for j = 1:size(posMatrix, 2)
-        [lat_res, lon_res] = pix2latlon(R, posMatrix{k, j}(1), posMatrix{k, j}(2));
-        results(k,j) = m_idist(lon_res, lat_res, lon, lat);
-    end
-end
-[droneX, droneY] = find(results == min(min(results)), 1);
-drone = posMatrix{droneX, droneY};
-% resRes = 
+% results = zeros(size(posMatrix));
+% % currResult = 2;
+% for k = 1:size(posMatrix, 1)
+%     for j = 1:size(posMatrix, 2)
+%         [lat_res, lon_res] = pix2latlon(R, posMatrix{k, j}(1), posMatrix{k, j}(2));
+%         results(k,j) = m_idist(lon_res, lat_res, lon, lat);
+%     end
+% end
+% [droneX, droneY] = find(results == min(min(results)), 1);
+% drone = posMatrix{droneX, droneY};
+% % resRes = 
 
 % expandedResults
-expandedPos = [linspace(cropSize(1), cropSize(3), 100)' linspace(cropSize(2), cropSize(4), 100)'];
-expandedResults = zeros(100);
-for k = 1:100
-    for j = 1:100
-        [lat_res, lon_res] = pix2latlon(R, expandedPos(k, 1), expandedPos(j, 2));
-        expandedResults(k,j) = m_idist(lon_res, lat_res, lon, lat);
-    end
-end
+% expandedPos = [linspace(cropSize(1), cropSize(3), 100)' linspace(cropSize(2), cropSize(4), 100)'];
+% expandedResults = zeros(100);
+% for k = 1:100
+%     for j = 1:100
+%         [lat_res, lon_res] = pix2latlon(R, expandedPos(k, 1), expandedPos(j, 2));
+%         expandedResults(k,j) = m_idist(lon_res, lat_res, lon, lat);
+%     end
+% end
 
 % mapa completo
 % plotMask(maskGeo, classesGeo, resultsMatrix{droneX, droneY}.rec, [], [], LmaskGeo, cropSize, drone);
@@ -322,11 +340,11 @@ end
 
 maxCorr = max(simMatrix(:));
 usable = 0;
-thresh = 0.75;
+thresh = 0.8; %0.75
 while ~usable
     threshCorr = thresh*maxCorr;
     coords = cell2mat(posMatrix(simMatrix >= threshCorr));
-    if size(coords, 1) < 2 || ~all(std(coords))
+    if size(coords, 1) < 3 || ~all(std(coords))
         thresh = thresh - 0.01;
     else
         usable = 1;
@@ -365,15 +383,15 @@ zCut(zCut <= 0.3) = 0;
 % a = get(gca,'XTickLabel');
 % set(gca,'XTickLabel',a,'fontsize',15);
 
-[yMinRes, xMinRes] = find(expandedResults == min(expandedResults(:)), 1);
-bestResult = [expandedPos(yMinRes, 1) expandedPos(xMinRes, 2)];
-errY = abs(yCoords-bestResult(1));
-yRes = find(errY == min(errY), 1);
-errX = abs(xCoords-bestResult(2));
-xRes = find(errX == min(errX), 1);
+% [yMinRes, xMinRes] = find(expandedResults == min(expandedResults(:)), 1);
+% bestResult = [expandedPos(yMinRes, 1) expandedPos(xMinRes, 2)];
+% errY = abs(yCoords-bestResult(1));
+% yRes = find(errY == min(errY), 1);
+% errX = abs(xCoords-bestResult(2));
+% xRes = find(errX == min(errX), 1);
 
-zRes = z(xRes, yRes);
-zResCut = zCut(xRes, yRes);
+% zRes = z(xRes, yRes);
+% zResCut = zCut(xRes, yRes);
 
 cutAreaY = X1(logical(zCut));
 cutAreaX = X2(logical(zCut));
@@ -395,13 +413,13 @@ for i = 1:size(allPositives, 1)
 end
 
 if imgCnt < 0 %11
-    errY = abs(yCoords-visPos(1));
-    yRes = find(errY == min(errY), 1);
-    errX = abs(xCoords-visPos(2));
-    xRes = find(errX == min(errX), 1);
-
-    zVis = z(xRes, yRes);
-    zVisCut = zCut(xRes, yRes);
+%     errY = abs(yCoords-visPos(1));
+%     yRes = find(errY == min(errY), 1);
+%     errX = abs(xCoords-visPos(2));
+%     xRes = find(errX == min(errX), 1);
+% 
+%     zVis = z(xRes, yRes);
+%     zVisCut = zCut(xRes, yRes);
 else
     zVis = 1e5;
     zVisCut = 0;
@@ -419,7 +437,8 @@ dbg = 1;
 % a = get(gca,'XTickLabel');
 % set(gca,'XTickLabel',a,'fontsize',15);
 
-
+zRes = 0;
+zResCut = 0;
 
 resCentro = mu;
 resProb = zRes;
@@ -441,13 +460,18 @@ visIn = zVisCut;
 % checkTemplateGridResults;
 
 % Calculo da latitude e longitude com base nos pixeis da img.
-[lat_res, lon_res] = pix2latlon(R, resCentro(1), resCentro(2));
-resDist = m_idist(lon_res, lat_res, lon, lat);
-if imgCnt < 0 %11
-    [lat_vis, lon_vis] = pix2latlon(R, visPos(1), visPos(2));
-    visDist = m_idist(lon_res, lat_res, lon_vis, lat_vis);
-else
-    visDist = 1e5;
+if R == 0
+    resDist = 0;
+    visDist = 0;
+else    
+    [lat_res, lon_res] = pix2latlon(R, resCentro(1), resCentro(2));
+    resDist = m_idist(lon_res, lat_res, lon, lat);
+    if imgCnt < 0 %11
+        [lat_vis, lon_vis] = pix2latlon(R, visPos(1), visPos(2));
+        visDist = m_idist(lon_res, lat_res, lon_vis, lat_vis);
+    else
+        visDist = 1e5;
+    end
 end
 
 end

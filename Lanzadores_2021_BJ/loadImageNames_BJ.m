@@ -2,7 +2,7 @@
 if strcmp(dataset, 'SP') || strcmp(dataset, 'SP_segmentation')
     if strcmp(dataset, 'SP')
         imagesPath = 'Images/Data_BR_SP/UAV_img_partial';
-    else
+    elseif strcmp(dataset, 'SP_segmentation')
         imagesPath = 'Lanzadores_2021_BJ/Images/Data_BR_SP/UAV_img_partial';
     end
     listing = dir(['./' imagesPath]);
@@ -15,9 +15,9 @@ if strcmp(dataset, 'SP') || strcmp(dataset, 'SP_segmentation')
     end
     
 elseif strcmp(dataset, 'SC') || strcmp(dataset, 'SC_segmentation')
-    if strcmp(dataset, 'SP')
+    if strcmp(dataset, 'SC')
         imagesPath = 'Images/Data_Suecia/UAV_img';
-    else
+    elseif strcmp(dataset, 'SC_segmentation')
         imagesPath = 'Lanzadores_2021_BJ/Images/Data_Suecia/UAV_img';
     end
     listing = dir(['./' imagesPath]);
