@@ -1,3 +1,9 @@
+# UPDATE 21/07/2021
+
+Updating project to latest version, please wait...
+
+
+
 # semantic-segmentation
 Semantic Segmentation Project 
 
