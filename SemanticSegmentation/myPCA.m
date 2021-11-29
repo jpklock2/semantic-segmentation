@@ -32,6 +32,7 @@ else
         pixels = (parameters.pcaCoeffs(:,1:parameters.pcaN)'*(pixels-parameters.pcaMean)')';
     end
 end
+clear pixelBkpOri coeff explained mu
 if printResults
 fprintf('Execution time for applying PCA: %f s\n', toc);
 end

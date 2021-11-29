@@ -17,10 +17,11 @@ if (bestK == 0)
         end
         jotas = [jotas; median(jotasInd)];
     end
-    KF = knee_pt(jotas)+2;
+    KF = knee_pt(jotas);
     if KF <= 0
         KF = 1;
     end
+    clear Jc jotas
 %     KF = knee_pt(jotas)+2;
 
 %     if plotsIM

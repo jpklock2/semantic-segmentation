@@ -2,7 +2,9 @@ function [classesTempJoin, KcJoin, UcJoin, centroidsJoin] = joinClasses(tree, Kc
 
 Z = tree;
 Z = transz(Z);
-thresh = 0.33*max([Z(:, 3)]);
+if ~exist('thresh', 'var')
+    thresh = 0.25*max([Z(:, 3)]);
+end
 % thresh = 0.33/max([Z(:, 3); 1]);
 usable = Z(Z(:, 3) <= thresh, 1:2);
 % currGroups = 1:Kc;

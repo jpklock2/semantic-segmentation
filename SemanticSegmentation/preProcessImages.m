@@ -42,6 +42,7 @@ if (myPreprocess == 1 || myPreprocess == 2)
 %             [~, hgram(currentChan, :)] = imhist(oriEqImg(:,:,currentChan), 256);
         end
         parameters.eqHist = hgram;
+        clear hgram
 %         oriEqImg = rgbImage;
 %         parameters.eqImg = oriEqImg;
 %         clear oriEqImg

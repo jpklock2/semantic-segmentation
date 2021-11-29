@@ -11,17 +11,22 @@
  if m > 1
      if size(rgbImageTemp,3)~=3
          rgbImageTemp = cat(3, rgbImageTemp, rgbImageTemp, rgbImageTemp);
+     end
+    if exist('scaleSize', 'var')
+        rgbImage = imresize(rgbImageTemp, scaleSize); % diminui o tamanho da imagem para diminuir os calculos
+    else
+        rgbImage = imresize(rgbImageTemp, 0.25);
     end
-    rgbImage = imresize(rgbImageTemp,scaleSize,'Bilinear'); % diminui o tamanho da imagem para diminuir os calculos
 %     rgbImage = rgbImageTemp;
  else
      if strcmp(dataset, 'SW')
         rgbImage = rgbImageTemp;
      else
+%          rgbImage = rgbImageTemp;
         rgbImage = imresize(rgbImageTemp, 0.25); % diminui o tamanho da imagem para diminuir os calculos
      end
  end
- originalRgbImage = rgbImage;
+%  originalRgbImage = rgbImage;
  clear rgbImageTemp
 %  [L,Centers] = imsegkmeans(rgbImage,7);
 %  B = labeloverlay(rgbImage,L);

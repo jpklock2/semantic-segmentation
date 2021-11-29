@@ -37,3 +37,4 @@ end
 parameters.meanRed = meanRed;
 parameters.meanGreen = meanGreen;
 parameters.meanBlue = meanBlue;
+clear redIdx greenIdx blueIdx

@@ -21,5 +21,5 @@ end
 %     title('Super Pixel Segments')
 %  end
 if printResults
-fprintf('Execution time superpixel segmentation: %f s\n', toc);
+fprintf('Execution time for segmenting in %d superpixels: %f s\n', N, toc);
 end

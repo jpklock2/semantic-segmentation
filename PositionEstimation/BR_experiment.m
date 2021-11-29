@@ -1,10 +1,12 @@
 %% Starting Code
+addpath(genpath('../SemanticSegmentation'));
 initCode;
 dataset = 'BR';
 loadImageNames;
 imageNamesTemp = imageNames(2:end);
 startTime = datetime('now');
 fprintf('\nExperiment start: %s\n', startTime);
+runComparison = 1;
 
 %% Configuration Code
 printFigs = 0; %mostrar figuras
@@ -50,7 +52,8 @@ else
 end
 log_coords1 = [];
 log_coords2 = [];
-[geo_img, cmap, R, bbox] = geotiffread('Images/Dataset_BR/map.tif');
+mapPath = '..\CnnComparison\Images\Train\map.tif';
+[geo_img, cmap, R, bbox] = geotiffread(mapPath);
 R_copy = R;
 
 %% Calculating Sensor Informations
@@ -90,6 +93,8 @@ for i = size(log_coords1, 1)+1:length(imageNamesTemp)
     dimY = colunas/py;
     scale_uav_img = imresize(uav_img, [dimX dimY], 'Bilinear');
     scale_uav_img = imresize(scale_uav_img, 0.87, 'Bilinear');
+    dimX = size(scale_uav_img, 1);
+    dimY = size(scale_uav_img, 2);
     if printFigs
         figure;
         imshow(scale_uav_img);
@@ -98,28 +103,39 @@ for i = size(log_coords1, 1)+1:length(imageNamesTemp)
     %% Semantic Mask - Training Georeferenced Image
     fprintf('\nRunning Semantic Segmentation Pipeline...\n');
     processGeo = 0;
-    if exist(['geoData_filter_' num2str(myFilter2) '.mat'], 'file') == 2 || ~processGeo
+    if exist(['geoData_filter_' num2str(myFilter2) '.mat'], 'file') == 2 && ~processGeo
         fprintf('\nGeoreferenced data found, loading data...\n\n');
         load(['geoData_filter_' num2str(myFilter2) '.mat']);
     else
-        [maskGeo, maskIdxGeo, centroidsGeo, classesGeo, parameters, geoAdjacencies, ftGeoOwn, ftGeoAdj] = semanticSegmentation('Images/Dataset_BR/map.tif', 1, myFilter2, dataset);
+        [maskGeo, maskIdxGeo, centroidsGeo, classesGeo, parameters, geoAdjacencies, ftGeoOwn, ftGeoAdj] = semanticSegmentation(mapPath, 1, myFilter2, dataset, 0);
         LmaskGeo = zeros(size(maskGeo));
         for mx = 1:length(classesGeo)
-            LmaskGeo(maskGeo == mx) = classesGeo(mx);
+%             LmaskGeo(maskGeo == mx) = classesGeo(mx);
+            LmaskGeo(maskIdxGeo{mx}) = classesGeo(mx);
         end
         save(['geoData_filter_' num2str(myFilter2) '.mat'],'maskGeo','maskIdxGeo','centroidsGeo','classesGeo','parameters','LmaskGeo','geoAdjacencies','ftGeoOwn','ftGeoAdj');
     end
     
+    if runComparison
+%         [masseliModelSvm masseliModelTree] = createMasseliClassifier(geo_img);
+        data = load('..\CnnComparison\TrainedNetworks\deeplab.mat'); 
+        deepnet = data.net;
+        data = load('..\CnnComparison\TrainedNetworks\segnet.mat'); 
+        segnet = data.net;
+    end
+    
     %% Semantic Mask - Training UAV Image
     fprintf('\nRunning Semantic Segmentation Pipeline...\n');
-    [mask, maskIdx, centroids, classes, ~, adjacencies, ftOwn, ftAdj, currImage, currImagePlot] = semanticSegmentation(outf, i+1, myFilter2, dataset, classesGeo, centroidsGeo, parameters, [dimX dimY]);
-    currImage = imresize(currImage, [dimX dimY], 'Bilinear');
-    currImage = imresize(currImage, 0.87, 'Bilinear');
+    [mask, maskIdx, centroids, classes, ~, adjacencies, ftOwn, ftAdj, currImage, currImagePlot] = semanticSegmentation(outf, i+1, myFilter2, dataset, 1, classesGeo, centroidsGeo, parameters, [dimX dimY]);
+%     currImage = imresize(currImage, [dimX dimY], 'Bilinear');
+%     currImage = imresize(currImage, 0.87, 'Bilinear');
     outputSegmentation = evalFunction(classes, length(unique(classes)), maskIdx, currImagePlot, length(classes));
+%     currImagePlotRes = imresize(currImagePlot, 0.87, 'Bilinear');
     %         oldMask = mask;
     Lmask = zeros(size(mask));
     for mx = 1:length(classes)
-        Lmask(mask == mx) = classes(mx);
+%         Lmask(mask == mx) = classes(mx);
+        Lmask(maskIdx{mx}) = classes(mx);
     end
 
     
@@ -127,8 +143,8 @@ for i = size(log_coords1, 1)+1:length(imageNamesTemp)
     fprintf('\nGetting Geo SubImage...\n');
     tic;
     hab=1;
-    [crop_geo_img,crop_geo_img_withPoint,cmap,R,bbox,cropSize] = get_geo_subimg(lat(i,1),lon(i,1),...
-        tamx_calc, tamy_calc, geo_img, cmap, R_copy, bbox, hab);
+    [crop_geo_img,crop_geo_img_withPoint,cmap,R,bbox,cropSize,crop_geo_mask] = get_geo_subimg(lat(i,1),lon(i,1),...
+        tamx_calc, tamy_calc, geo_img, cmap, R_copy, bbox, hab, LmaskGeo);
     
     fprintf('Execution time for Geo SubImage: %f s\n', toc);
     
@@ -153,16 +169,18 @@ for i = size(log_coords1, 1)+1:length(imageNamesTemp)
     fprintf('\nCorrecting Image Perspective...\n');
     tic;
     
-    mask = imresize(mask, [size(pre_uav_img, 1) size(pre_uav_img, 2)]);
-    Lmask = imresize(Lmask, [size(pre_uav_img, 1) size(pre_uav_img, 2)]);
+    mask = imresize(mask, [size(pre_uav_img, 1) size(pre_uav_img, 2)], 'nearest');
+    Lmask = imresize(Lmask, [size(pre_uav_img, 1) size(pre_uav_img, 2)], 'nearest');
     [rot_img, util_rot_img, rot_mask, util_rot_mask, util_mask, utilCropSize, currImage, rotPlotImage, rotOutputSegmentation] = correcion_perspectiva_segmentation(...
             scale_uav_img, (yaw(i)-20), pitch(i), roll(i), alt(i), Lmask, mask, currImage, currImagePlot, outputSegmentation, pre_geo_img, pre_uav_img, perspective_correction_type,preprocessing_img);
     fprintf('Execution time for Perspective Correction: %f s\n', toc);
     
-    rot_mask = removeResiduals(rot_mask, classes);
-    util_rot_mask = removeResiduals(util_rot_mask, classes);
-    util_mask = removeResidualsMask(util_mask);
-%     
+    
+%     rot_mask = removeResiduals(rot_mask, classes);
+%     util_rot_mask = removeResiduals(util_rot_mask, classes);
+%     util_mask = removeResidualsMask(util_mask);
+
+
 %     rot_img = imrotate(scale_uav_img, -(yaw(i)-20),'Bilinear','crop');
 %     [x2, y2] = size(rot_img);
 %     util_rot_img =rot_img(abs(x2/2-195):abs(x2/2+195), abs(y2/2-195):abs(y2/2+195));
@@ -193,10 +211,64 @@ for i = size(log_coords1, 1)+1:length(imageNamesTemp)
         fprintf('\nPerspective correction Image: %f s\n', toc);
     end
     
-    [resCentro, resProb, resIn, resArea, resDist, visDist, visProb, visIn, redArea] = geoAdjacencyTM(...
-        geoAdjacencies, adjacencies, classes, Lmask, util_mask, LmaskGeo,...
-        cropSize, utilCropSize, parameters, myFilter2, geo_img, util_rot_mask, R_copy, lon(i,1), lat(i,1), i, rotPlotImage, rotOutputSegmentation);
+    if runComparison
         
+        % pegando retangulo do meio
+        x0 = utilCropSize(2);
+        y0 = utilCropSize(1);
+        x1 = utilCropSize(4);
+        y1 = utilCropSize(3);
+
+        rec = [y0 x0 y1 x1];
+%         plotMask(util_mask, classes, rec);
+        usefulImage = rotPlotImage(y0:y1, x0:x1, :);
+        
+        % masseli segmentation
+%         masseliSeg = runMasseli(masseliModelSvm, masseliModelTree, usefulImage);
+        
+        % deeplab alternative
+        usefulImage2 = imresize(util_rot_img, [360 480]);
+        deepSegCat = semanticseg(usefulImage2, deepnet);
+%         B3 = labeloverlay(usefulImage2, deepSegCat, 'Transparency', 0.4);
+%         figure; imshow(B3);
+        myColorsClasses = ["Grass", "Forest", "Soil", "River"];
+        deepSeg2 = zeros(size(deepSegCat));
+        for col = 1:length(myColorsClasses)
+            deepSeg2(deepSegCat == myColorsClasses(col)) = col;
+        end
+        deepSeg2 = imresize(deepSeg2, size(rotPlotImage(y0:y1, x0:x1, 1)), 'nearest');
+        
+        % deeplab
+%         usefulImage = imresize(usefulImage, [360 480]);
+%         deepSegCat = semanticseg(usefulImage, deepnet);
+%         B3 = labeloverlay(usefulImage, deepSegCat, 'Transparency', 0.4);
+%         figure; imshow(B3);
+%         myColorsClasses = ["Grass", "Forest", "Soil", "River"];
+%         deepSeg = zeros(size(deepSegCat));
+%         for col = 1:length(myColorsClasses)
+%             deepSeg(deepSegCat == myColorsClasses(col)) = col;
+%         end
+%         deepSeg = imresize(deepSeg, size(rotPlotImage(y0:y1, x0:x1, 1)), 'nearest');
+
+        deepSeg = deepSeg2;
+        
+        % segnet
+        usefulImage2 = imresize(util_rot_img, [360 480]);
+        deepSegCat = semanticseg(usefulImage2, segnet);
+%         B3 = labeloverlay(usefulImage2, deepSegCat, 'Transparency', 0.4);
+%         figure; imshow(B3);
+        myColorsClasses = ["Grass", "Forest", "Soil", "River"];
+        segnetSeg = zeros(size(deepSegCat));
+        for col = 1:length(myColorsClasses)
+            segnetSeg(deepSegCat == myColorsClasses(col)) = col;
+        end
+        segnetSeg = imresize(segnetSeg, size(rotPlotImage(y0:y1, x0:x1, 1)), 'nearest');
+        
+    else
+        [resCentro, resProb, resIn, resArea, resDist, visDist, visProb, visIn, redArea] = geoAdjacencyTM(...
+         geoAdjacencies, adjacencies, classes, Lmask, util_mask, LmaskGeo, cropSize, utilCropSize, parameters,...
+         myFilter2, geo_img, util_rot_mask, R_copy, lon(i,1), lat(i,1), i, rotPlotImage, rotOutputSegmentation);
+    end
     
     %% Edges and Correlation
     
@@ -206,12 +278,16 @@ for i = size(log_coords1, 1)+1:length(imageNamesTemp)
         tic;
         
         if preprocessing_img 
-            
             [yoffSet, xoffSet, Mcorr, centro, centro_old] = edges_and_correlation_v2(...
             util_rot_img, pre_geo_img, n_case, redArea);
         else
-            [yoffSet, xoffSet, Mcorr, centro, centro_old] = edges_and_correlation_v2(...
-            util_rot_img, crop_geo_img, n_case, redArea);
+            if runComparison
+                [centroOri, centroDeep, centroMass] = edges_and_correlation_v3(...
+                util_rot_mask, deepSeg, segnetSeg, crop_geo_mask);
+            else
+                [yoffSet, xoffSet, Mcorr, centro, centro_old] = edges_and_correlation_v2(...
+                util_rot_img, crop_geo_img, n_case, redArea);
+            end
         end
     
         fprintf('Execution time for Edges and Correlation: %f s\n', toc);
@@ -229,15 +305,34 @@ for i = size(log_coords1, 1)+1:length(imageNamesTemp)
         end
 
         % Calculo da latitude e longitude com base nos pixeis da img.
-        [lat_srp, lon_srp] = pix2latlon(R, centro(1), centro(2));
-        [lat_srp2, lon_srp2] = pix2latlon(R, centro_old(1), centro_old(2));
- 
-        dist1 = m_idist(lon_srp, lat_srp, lon(i,1), lat(i,1));
-        dist2 = m_idist(lon_srp2, lat_srp2, lon(i,1), lat(i,1));
-        
+        if ~runComparison
+            [lat_srp, lon_srp] = pix2latlon(R, centro(1), centro(2));
+            [lat_srp2, lon_srp2] = pix2latlon(R, centro_old(1), centro_old(2));
 
-        log_coords1 = [log_coords1; lat(i,1), lon(i,1), lat_srp, lon_srp,...
-                       dist1, lat_srp2, lon_srp2, dist2, n_case, i];
+            dist1 = m_idist(lon_srp, lat_srp, lon(i,1), lat(i,1));
+            dist2 = m_idist(lon_srp2, lat_srp2, lon(i,1), lat(i,1));
+
+
+            log_coords1 = [log_coords1; lat(i,1), lon(i,1), lat_srp, lon_srp,...
+                           dist1, lat_srp2, lon_srp2, dist2, n_case, i];
+
+        else
+
+            [lat_srp, lon_srp] = pix2latlon(R, centroOri(1), centroOri(2));
+            [lat_srp2, lon_srp2] = pix2latlon(R, centroDeep(1), centroDeep(2));
+            [lat_srp3, lon_srp3] = pix2latlon(R, centroMass(1), centroMass(2));
+
+            dist1 = m_idist(lon_srp, lat_srp, lon(i,1), lat(i,1));
+            dist2 = m_idist(lon_srp2, lat_srp2, lon(i,1), lat(i,1));
+            dist3 = m_idist(lon_srp3, lat_srp3, lon(i,1), lat(i,1));
+
+
+            log_coords1 = [log_coords1; lat(i,1), lon(i,1),...
+                           lat_srp, lon_srp, dist1,...
+                           lat_srp2, lon_srp2, dist2,...
+                           lat_srp3, lon_srp3, dist3, i];
+
+        end
         
         save log_coords1.mat log_coords1
 

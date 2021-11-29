@@ -132,8 +132,9 @@ end
 if plotsCompare
 %     thresh = 0.15;
     [outputImage] = evalFunction(classesTemp, Kc, idx, rgbImage, N);
-    figure; montage({originalRgbImage,outputImage});
-    [outputImage] = evalFunction(classesTempJoin, KcJoin, idx, rgbImage, N);
+%     figure; montage({originalRgbImage,outputImage});
+    [outputImageJoin] = evalFunction(classesTempJoin, KcJoin, idx, rgbImage, N);
+    figure; montage({originalRgbImage,outputImage,outputImageJoin}, 'Size', [1 3]);
     
 %     load(['./Images/Test/Original_Dev/Classes/im',num2str(m),'.mat']);
 %     idxLabel = label2idx(L2);

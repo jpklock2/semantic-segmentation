@@ -29,6 +29,7 @@ for labelVal = 1:N
     totalAdj = totalAdj + length(uniAdjs);
     superPixels{labelVal}.adj = uniAdjs;
 end
+clear nX nY pX pY x y
 % toc
 dgb = 1;
 
@@ -60,9 +61,15 @@ end
                 case 6
                     A = rgb2ntsc(rgbImage);
                 case 7
-                    cform = makecform('srgb2cmyk');
-                    cymA = applycform(rgbImage, cform); 
-                    A = cymA(:,:,1:3);
+                    A = rgb2cmyk(rgbImage, 'ori');
+%                     cform = makecform('srgb2cmyk');
+%                     A = applycform(lin2rgb(rgbImage), cform); 
+                    A = A(:,:,1:3);
+                case 8
+                    A = rgb2cmyk(rgbImage, 'mod'); 
+%                     cform = makecform('srgb2cmyk');
+%                     A = applycform(lin2rgb(rgbImage), cform); 
+                    A = A(:,:,1:3);
             end
 %             A(:,:,4:6) = rgb2hsv(rgbImage);
     %         labImage = rgb2lab(rgbImage);
@@ -97,7 +104,7 @@ end
 %                 pixels(labelVal, :) = pTemp;
                 pixels(labelVal, ((t-1)*(nFts*nColors))+(1:(nFts*nColors))) = pTemp;
             end
-            clear A gradA
+            clear A gradA pTemp Idx
         end
 %         toc;
     end
@@ -254,7 +261,7 @@ pixelsOwn = pixels;
                 colorCnt = colorCnt+filtCnt;
             end
             
-            clear A fA fAold gradfA
+            clear A fA fAold gradfA F faAdj gradfAAdj colorIdx
                 
 %                 for labelVal = 1:N
 %                     [row,col] = find(L == labelVal);
@@ -451,12 +458,15 @@ pixelsOwn = pixels;
         end
         pixels = (pixels-parameters.featMean)./(2.*(3.*parameters.featStd+1)); 
         pixels(isnan(pixels)) = 0;
+        clear ftMean ftStd
     end
     
     if (myNormalization == 2 || myNormalization == 3)
         % por superpixel (por linha)
         pixels = (pixels-mean(pixels, 2))./(2.*(3.*std(pixels, 0, 2)+1));
     end
+    
+    clear pixelsTemp
        
     pixels(isnan(pixels)) = 0;
     if printResults

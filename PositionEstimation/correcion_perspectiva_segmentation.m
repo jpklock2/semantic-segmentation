@@ -37,8 +37,8 @@ else
     img_out_copy = img_out;
 end
 if exist('Lmask','var')
-    Lmask = imwarp(Lmask,tform,'bilinear');
-    mask = imwarp(mask,tform,'bilinear');
+    Lmask = imwarp(Lmask,tform,'nearest');
+    mask = imwarp(mask,tform, 'nearest');
     currImg = imwarp(currImg,tform,'bilinear');
     currSegmentation = imwarp(currSegmentation,tform,'bilinear');
     currPlotImage = imwarp(currPlotImage,tform,'bilinear');

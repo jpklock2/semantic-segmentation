@@ -17,6 +17,7 @@ cmap = myColors;
 
 trainImage = imread('Images/Train/map.tif');
 trainImage = imresize(trainImage, 0.25);
+origTrainImage = trainImage;
 
 labImage = rgb2lab(trainImage);
 % [counts,binLocations] = imhist(rgbImage);
@@ -80,22 +81,34 @@ myClasses = myClasses(1:4);
 idx = label2idx(L2);
 Lmask = zeros(size(L2));
 LmaskRed = zeros(size(L2));
-LmaskGren = zeros(size(L2));
+LmaskGreen = zeros(size(L2));
 LmaskBlue = zeros(size(L2));
 LmaskColor = zeros(size(L2, 1), size(L2, 2), 3);
 LmaskCategorical = strings(size(L2));
+coloredImageRed = origTrainImage(:, :, 1);
+coloredImageGreen = origTrainImage(:, :, 2);
+coloredImageBlue = origTrainImage(:, :, 3);
+coloredImage = origTrainImage;
 sizesClasses = zeros(1, length(myClasses));
+% numRows = size(L2, 1);
+% numCols = size(L2, 2);
 for mx = 1:length(myClasses)
     Lmask(ismember(L2, myClasses{mx})) = mx;
     LmaskRed(ismember(L2, myClasses{mx})) = myColors(mx, 1);
-    LmaskGren(ismember(L2, myClasses{mx})) = myColors(mx, 2);
+    LmaskGreen(ismember(L2, myClasses{mx})) = myColors(mx, 2);
     LmaskBlue(ismember(L2, myClasses{mx})) = myColors(mx, 3);
     LmaskCategorical(ismember(L2, myClasses{mx})) = myColorsClasses(mx);
     sizesClasses(mx) = length(myClasses{mx});
+    coloredImageRed(ismember(L2, myClasses{mx})) = mean(coloredImageRed(ismember(L2, myClasses{mx})));
+    coloredImageGreen(ismember(L2, myClasses{mx})) = mean(coloredImageGreen(ismember(L2, myClasses{mx})));
+    coloredImageBlue(ismember(L2, myClasses{mx})) = mean(coloredImageBlue(ismember(L2, myClasses{mx})));
 end
 LmaskColor(:, :, 1) = LmaskRed;
-LmaskColor(:, :, 2) = LmaskGren;
+LmaskColor(:, :, 2) = LmaskGreen;
 LmaskColor(:, :, 3) = LmaskBlue;
+coloredImage(:, :, 1) = coloredImageRed;
+coloredImage(:, :, 2) = coloredImageGreen;
+coloredImage(:, :, 3) = coloredImageBlue;
 LmaskCategorical = categorical(LmaskCategorical, myColorsClasses);
 % LmaskColor = [LmaskRed LmaskGren LmaskBlue];
 % figure; imagesc(Lmask);
@@ -104,6 +117,13 @@ LmaskCategorical = categorical(LmaskCategorical, myColorsClasses);
 % B = labeloverlay(trainImage,LmaskCategorical,'Colormap',cmap,'Transparency',0.6);
 % figure; imshow(B);
 % pixelLabelColorbar(myColors,myColorsClasses);
+
+% fig = figure; montage({origTrainImage, coloredImage, LmaskColor}, 'ThumbnailSize', [], 'BorderSize', [10 10], 'Size', [1 3], 'BackgroundColor', 'black');
+% set(fig,'Units','Inches');
+% pos = get(fig,'Position');
+% set(fig,'PaperPositionMode','Auto','PaperUnits','Inches','PaperSize',[pos(3), pos(4)])
+% print(fig,'D:\2021_1\mestrado\artigo\SIBIGRAPI\images\dataset_BR.pdf','-dpdf','-r0');
+% title(['Image ' num2str(i)]);
 
 % Extracting superpixels centroids and adjacency matrix
 numRows = size(L2,1);
@@ -226,7 +246,7 @@ myClasses = myClasses(1:4);
 idx = label2idx(L2);
 Lmask = zeros(size(L2));
 LmaskRed = zeros(size(L2));
-LmaskGren = zeros(size(L2));
+LmaskGreen = zeros(size(L2));
 LmaskBlue = zeros(size(L2));
 LmaskColor = zeros(size(L2, 1), size(L2, 2), 3);
 % LmaskCategorical = strings(size(L2));
@@ -234,13 +254,13 @@ sizesClasses = zeros(1, length(myClasses));
 for mx = 1:length(myClasses)
     Lmask(ismember(L2, myClasses{mx})) = mx;
     LmaskRed(ismember(L2, myClasses{mx})) = myColors(mx, 1);
-    LmaskGren(ismember(L2, myClasses{mx})) = myColors(mx, 2);
+    LmaskGreen(ismember(L2, myClasses{mx})) = myColors(mx, 2);
     LmaskBlue(ismember(L2, myClasses{mx})) = myColors(mx, 3);
 %     LmaskCategorical(ismember(L2, myClasses{mx})) = myColorsClasses(mx);
     sizesClasses(mx) = length(myClasses{mx});
 end
 LmaskColor(:, :, 1) = LmaskRed;
-LmaskColor(:, :, 2) = LmaskGren;
+LmaskColor(:, :, 2) = LmaskGreen;
 LmaskColor(:, :, 3) = LmaskBlue;
 % LmaskCategorical = categorical(LmaskCategorical, myColorsClasses);
 LmaskColorTemp = imresize(LmaskColor, [360, 480], 'nearest');
@@ -332,17 +352,93 @@ pxdsTest = pixelLabelDatastore('Images\CnnDataset\LabelsTest', myColorsClasses, 
 % end
 % figure; montage({originalRgbImage, rgbImage});
 
+%% Generate FCM Dataset (no Classifier)
+
+generateFCM_ori = 1;
+if generateFCM_ori
+    
+listing = dir('Images\Test\Original_Dev');
+imageNames = [{}];
+for i=1:length(listing)
+    if contains(lower(listing(i).name), '.jpg')
+        imageNames = [imageNames; listing(i).name];
+    end
+end
+
+currImagePlots = [{}];
+outputImages = [{}];
+LmaskColors = [{}];
+for m = 1:length(imageNames)
+
+    [~, maskIdx, ~, classes, params, ~, ~, ~, ~, currImagePlot] = semanticSegmentation(imageNames{m}, 1, 3, '', 1);
+    
+    outputImage = zeros(size(currImagePlot), 'like', currImagePlot);
+    numRows = size(outputImage, 1);
+    numCols = size(outputImage, 2);
+    for labelVal = 1:length(maskIdx)
+        redIdx = maskIdx{labelVal};
+        greenIdx = maskIdx{labelVal}+numRows*numCols;
+        blueIdx = maskIdx{labelVal}+2*numRows*numCols;
+        outputImage(redIdx) = params.meanRed(classes(labelVal));
+        outputImage(greenIdx) = params.meanGreen(classes(labelVal));
+        outputImage(blueIdx) = params.meanBlue(classes(labelVal));
+    end
+    
+    LmaskColor = imread(pxdsTest.Files{m});
+    LmaskColor = imresize(LmaskColor, [size(currImagePlot, 1), size(currImagePlot, 2)], 'Bilinear');
+    
+    currImagePlots = [currImagePlots; currImagePlot];
+    outputImages = [outputImages; outputImage];
+    LmaskColors = [LmaskColors; LmaskColor];
+%     imwrite(LmaskColor, ['Images\Results\Ours\' num2str(m, '%05.f') '.png']);
+%     fig = figure;
+%     montage({currImagePlot, outputImage, LmaskColor}, 'ThumbnailSize', [], 'BorderSize', [5 5], 'Size', [1 3], 'BackgroundColor', 'black');
+%     set(fig,'Units','Inches');
+%     pos = get(fig,'Position');
+%     set(fig,'PaperPositionMode','Auto','PaperUnits','Inches','PaperSize',[pos(3), pos(4)])
+%     print(fig,['D:\2021_1\mestrado\artigo\SIBIGRAPI\images\ours_' num2str(m) '.pdf'],'-dpdf','-r0');
+%     title(['Image ' num2str(i)]);
+
+end
+end
+
+fig = figure; montage({currImagePlots{1}, outputImages{1}, LmaskColors{1}, currImagePlots{2}, outputImages{2}, LmaskColors{2},...
+        currImagePlots{4}, outputImages{4}, LmaskColors{4}},...
+    'ThumbnailSize', [], 'BorderSize', [5 5], 'Size', [3 3], 'BackgroundColor', 'black');
+%     currImagePlots{4}, outputImages{4}, LmaskColors{4}, currImagePlots{7}, outputImages{7}, LmaskColors{7}},...
+%     'ThumbnailSize', [], 'BorderSize', [5 5], 'Size', [4 3], 'BackgroundColor', 'black');
+    set(fig,'Units','Inches');
+    pos = get(fig,'Position');
+    set(fig,'PaperPositionMode','Auto','PaperUnits','Inches','PaperSize',[pos(3), pos(4)])
+    print(fig,'D:\2021_1\mestrado\artigo\SIBIGRAPI\images\sem_segs.pdf','-dpdf','-r0');
+
+fprintf("\nOurs Reslts...\n");
+pxdsOurs = pixelLabelDatastore('Images\Results\Ours', myColorsClasses, myColors*255);
+metrics = evaluateSemanticSegmentation(pxdsOurs,pxdsTest,'Verbose',false);
+metrics.DataSetMetrics
+metrics.ClassMetrics
+
+% fprintf("\nCANFIS 2 Centroids No Dendo Reslts...\n");
+% pxdsFCM = pixelLabelDatastore('CNNCodes/myDataset/labelsFCM_CANFIS_2_centroids_nodendo', myColorsClasses, myColors*255);
+% metrics = evaluateSemanticSegmentation(pxdsFCM,pxdsTest,'Verbose',false);
+% metrics.DataSetMetrics
+% metrics.ClassMetrics
+
+% pxdsOurs = pixelLabelDatastore('CNNCodes/myDataset/labelsFCM_SVM_superpixels', myColorsClasses, myColors*255);
+
+dbg = 1;
+
 %% Generate FCM Dataset
 
 generateFCM = 0;
 if generateFCM
 for m = 1:10
 
-    [mask, maskIdx, centroids, classes, ~, adjacencies, ftOwn, ftAdj, currImage, currImagePlot] = semanticSegmentation(imdsTest.Files{m}, m+1, 3, '', classesGeo, centroidsGeo, parameters, [360 480]);
+    [mask, maskIdx, centroids, classes, ~, adjacencies, ftOwn, ftAdj, currImage, currImagePlot] = semanticSegmentation(imdsTest.Files{m}, m+1, 3, '', 1, classesGeo, centroidsGeo, parameters, [360 480]);
     
     %     Lmask = zeros(size(mask));
     LmaskRed = zeros(size(mask));
-    LmaskGren = zeros(size(mask));
+    LmaskGreen = zeros(size(mask));
     LmaskBlue = zeros(size(mask));
     LmaskColor = zeros(size(mask, 1), size(mask, 2), 3);
 %     LmaskCategorical = strings(size(mask));
@@ -351,12 +447,12 @@ for m = 1:10
     %         Lmask(mask == mx) = classes(mx);
     %         myClasses{classes(mx)} = [myClasses{classes(mx)}; maskIdx{mx}];
         LmaskRed(mask == mx) = myColors(classes(mx), 1);
-        LmaskGren(mask == mx) = myColors(classes(mx), 2);
+        LmaskGreen(mask == mx) = myColors(classes(mx), 2);
         LmaskBlue(mask == mx) = myColors(classes(mx), 3);
 %         LmaskCategorical(mask == mx) = myColorsClasses(classes(mx));
     end
     LmaskColor(:, :, 1) = LmaskRed;
-    LmaskColor(:, :, 2) = LmaskGren;
+    LmaskColor(:, :, 2) = LmaskGreen;
     LmaskColor(:, :, 3) = LmaskBlue;
 %     LmaskCategorical = categorical(LmaskCategorical, myColorsClasses);
     
@@ -809,16 +905,17 @@ for i = 1:10
 %     fcnTimes = [fcnTimes; toc];
 %     B4 = labeloverlay(I,C4,'Colormap',cmap,'Transparency',0.4);
     
-    fig = figure; montage({B1, B2, B3, B0}, 'BorderSize', [5 5]);
+    fig = figure; montage({B1, B2, B3, B0}, 'BorderSize', [5 5], 'ThumbnailSize', []);
 %     subplot(221); imshow(B2);
 %     subplot(222); imshow(B3);
 %     subplot(223); imshow(B4);
 %     subplot(224); imshow(B0);
     pixelLabelColorbar(cmap,classes);
-%     set(fig,'Units','Inches');
-%     pos = get(fig,'Position');
-%     set(fig,'PaperPositionMode','Auto','PaperUnits','Inches','PaperSize',[pos(3), pos(4)])
-%     print(fig,'D:\2021_1\mestrado\artigo\deep.pdf','-dpdf','-r0');
+    set(fig,'Units','Inches');
+    pos = get(fig,'Position');
+    set(fig,'PaperPositionMode','Auto','PaperUnits','Inches','PaperSize',[pos(3), pos(4)]);
+    print(fig,['D:\2021_1\mestrado\artigo\SIBIGRAPI\images\deep_' num2str(i) '.pdf'],'-dpdf','-r0');
+%     print(fig,['D:\2021_1\mestrado\artigo\deep.pdf'],'-dpdf','-r0');
 %     title(['Image ' num2str(i)]);
 
     dbg = 1;

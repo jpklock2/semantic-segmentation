@@ -44,7 +44,7 @@ switch myFilter
 %         disp(['The SSIM value of the noisy image is ',num2str(ssim(smoothedRBG,rgbImage))]);
 %             figure; montage({rgbImage,smoothedRBG});
         rgbImage = smoothedRBG;
-        clear smoothedLAB smoothedRBG labImage
+        clear smoothedLAB smoothedRBG labImage minRow minCol edist patch patchSq
         
     case 4
     % Mínimos Quadrados

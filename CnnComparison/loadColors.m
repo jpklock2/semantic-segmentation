@@ -29,15 +29,19 @@ myColorsNames = {'snow'; 'yellow'; 'orange'; 'red'; 'pink'; ...
 clear snow yellow orange red pink purple blue green grey brown chartreuse tortilla mint hotpink
                 
 myColorsClasses = ["LightGrass"; "CommonGrass"; "DarkGrass"; "LightForest"; "DarkForest"; ...
-                "GraySoil"; "GreyEarth"; "BrownEarth"; "LittleFoliage"; "AsphaltRoad"; ...
-                "EarthRoad"; "GreyForest"; "River"; "Stone"]; %; ...
-%                 
+                "GraySoil"; "GrayEarth"; "BrownEarth"; "LittleFoliage"; "AsphaltRoad"; ...
+                "EarthRoad"; "GrayForest"; "River"; "Stone"]; %; ...
+
+% myColorsClasses = ["Grass", "Forest", "Soil", "River"];
+% myColorsNames = myColorsNames([2 4 8 1]);
+% myColors = myColors([2 4 8 1], :);
+%             
 % fig = figure; hold on;
 % x1 = [1:5 5*ones(1, 3) 5:-1:1 ones(1, 3)];
 % y1 = [6*ones(1, 5) 7:9 10*ones(1, 5) 9:-1:7];
 % xpos = 3;
 % ypos = 10.5;
-% for cor = 1:14
+% for cor = 1:4
 %     fill(x1, y1, myColors(cor, :));
 %     x1 = x1+5;
 %     text(xpos, ypos, [num2str(cor) ' - ' myColorsClasses{cor}], 'FontSize', 18, 'HorizontalAlignment', 'center');
@@ -49,7 +53,8 @@ myColorsClasses = ["LightGrass"; "CommonGrass"; "DarkGrass"; "LightForest"; "Dar
 %         ypos = ypos-5;
 %     end
 % end
-% axis([0 36 0 11]);
+% % axis([0 36 0 11]);
+% axis([0 21 5 11]);
 % 
 % set(gca,'xtick',[])
 % set(gca,'xticklabel',[])
@@ -61,6 +66,7 @@ myColorsClasses = ["LightGrass"; "CommonGrass"; "DarkGrass"; "LightForest"; "Dar
 % set(fig,'Units','Inches');
 % pos = get(fig,'Position');
 % set(fig,'PaperPositionMode','Auto','PaperUnits','Inches','PaperSize',[pos(3), pos(4)])
-% print(fig,'D:\TCC\TCC\figs\colors.pdf','-dpdf','-r0');
-% 
+% % print(fig,'D:\TCC\TCC\figs\colors.pdf','-dpdf','-r0');
+% print(fig,'D:\2021_1\mestrado\artigo\SIBIGRAPI\images\colors.pdf','-dpdf','-r0');
+% % 
 % dbg = 1;
