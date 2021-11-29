@@ -33,6 +33,10 @@ Then go to PositionEstimation\SVM and run the `make.m` file to compile `libsvm` 
 
 This step is divided between each experiment from the paper.
 
+Firt of all, in the main folder, run the initial function to add folders to path:
+
+`initCode.m`
+
 ### Step 3.1
 
 Semantic Segmentation:
