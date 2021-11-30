@@ -51,9 +51,11 @@ If you want to change the semantic segmentation parameters, all flags are explai
 
 Position Estimation Experiment:
 
-To replicate the paper experiments, for the Brazilian datast simply run:
+To replicate the paper experiments for the Brazilian datast, whitout the Masseli with CNNs comparison, set the *runComparison* flag in line 8 to 0 and run:
 
 `PositionEstimation\BR_experiment.m`
+
+To run experiments for the Masseli comparison, run with *runComparison = 1*.
 
 And for the Sweeden dataset, run:
 
