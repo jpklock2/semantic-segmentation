@@ -31,14 +31,13 @@ end
 superpixelSegmentation;
 
 %% Extraindo caracteristicas
-extractFeatures;
+extractLandFeatures;
 myPCA;
 
 %% Classificando centroides
 preprocessClusters;
 classes = classesTemp;
 % classifyCentroids;
-
 
 if printResults
 fprintf('\n'); % printa um espaco para ficar mais bonito

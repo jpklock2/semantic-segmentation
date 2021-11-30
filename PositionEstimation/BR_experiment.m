@@ -6,7 +6,7 @@ loadImageNames;
 imageNamesTemp = imageNames(2:end);
 startTime = datetime('now');
 fprintf('\nExperiment start: %s\n', startTime);
-runComparison = 1;
+runComparison = 0; % enable to run masseli with SegNet and DeepLab
 
 %% Configuration Code
 printFigs = 0; %mostrar figuras
@@ -52,7 +52,7 @@ else
 end
 log_coords1 = [];
 log_coords2 = [];
-mapPath = '..\CnnComparison\Images\Train\map.tif';
+mapPath = 'CnnComparison\Images\Train\map.tif';
 [geo_img, cmap, R, bbox] = geotiffread(mapPath);
 R_copy = R;
 
@@ -103,9 +103,9 @@ for i = size(log_coords1, 1)+1:length(imageNamesTemp)
     %% Semantic Mask - Training Georeferenced Image
     fprintf('\nRunning Semantic Segmentation Pipeline...\n');
     processGeo = 0;
-    if exist(['geoData_filter_' num2str(myFilter2) '.mat'], 'file') == 2 && ~processGeo
+    if exist(['PositionEstimation/geoData_' dataset '_filter_' num2str(myFilter2) '.mat'], 'file') == 2 && ~processGeo
         fprintf('\nGeoreferenced data found, loading data...\n\n');
-        load(['geoData_filter_' num2str(myFilter2) '.mat']);
+        load(['PositionEstimation/geoData_' dataset '_filter_' num2str(myFilter2) '.mat']);
     else
         [maskGeo, maskIdxGeo, centroidsGeo, classesGeo, parameters, geoAdjacencies, ftGeoOwn, ftGeoAdj] = semanticSegmentation(mapPath, 1, myFilter2, dataset, 0);
         LmaskGeo = zeros(size(maskGeo));
@@ -113,20 +113,20 @@ for i = size(log_coords1, 1)+1:length(imageNamesTemp)
 %             LmaskGeo(maskGeo == mx) = classesGeo(mx);
             LmaskGeo(maskIdxGeo{mx}) = classesGeo(mx);
         end
-        save(['geoData_filter_' num2str(myFilter2) '.mat'],'maskGeo','maskIdxGeo','centroidsGeo','classesGeo','parameters','LmaskGeo','geoAdjacencies','ftGeoOwn','ftGeoAdj');
+        save(['PositionEstimation/geoData_' dataset '_filter_' num2str(myFilter2) '.mat'],'maskGeo','maskIdxGeo','centroidsGeo','classesGeo','parameters','LmaskGeo','geoAdjacencies','ftGeoOwn','ftGeoAdj');
     end
     
     if runComparison
 %         [masseliModelSvm masseliModelTree] = createMasseliClassifier(geo_img);
-        data = load('..\CnnComparison\TrainedNetworks\deeplab.mat'); 
+        data = load('CnnComparison\TrainedNetworks\deeplab.mat'); 
         deepnet = data.net;
-        data = load('..\CnnComparison\TrainedNetworks\segnet.mat'); 
+        data = load('CnnComparison\TrainedNetworks\segnet.mat'); 
         segnet = data.net;
     end
     
     %% Semantic Mask - Training UAV Image
     fprintf('\nRunning Semantic Segmentation Pipeline...\n');
-    [mask, maskIdx, centroids, classes, ~, adjacencies, ftOwn, ftAdj, currImage, currImagePlot] = semanticSegmentation(outf, i+1, myFilter2, dataset, 1, classesGeo, centroidsGeo, parameters, [dimX dimY]);
+    [mask, maskIdx, centroids, classes, ~, adjacencies, ftOwn, ftAdj, currImage, currImagePlot] = semanticSegmentation(outf, i+1, myFilter2, dataset, 1, 0, classesGeo, centroidsGeo, parameters, [dimX dimY]);
 %     currImage = imresize(currImage, [dimX dimY], 'Bilinear');
 %     currImage = imresize(currImage, 0.87, 'Bilinear');
     outputSegmentation = evalFunction(classes, length(unique(classes)), maskIdx, currImagePlot, length(classes));

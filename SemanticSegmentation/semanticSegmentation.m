@@ -1,16 +1,20 @@
-function [L, idx, centroidsFinal, classes, parameters, superPixels, pixelsOwn, pixelsAdj, rgbImage, originalRgbImage] = semanticSegmentation(imagePath, m, myFilter2, dataset, returnOriImg, classes, centroidsFinal, parameters, scaleSize)
+function [L, idx, centroidsFinal, classes, parameters, superPixels, pixelsOwn, pixelsAdj, rgbImage, originalRgbImage] = semanticSegmentation(imagePath, m, myFilter2, dataset, returnOriImg, myCl, classes, centroidsFinal, parameters, scaleSize)
 
 %% Inicia o código e define pastas e imagens
 % initCode;
 
 %% Define flags
-printResults = 1;
-plotsIM = 1; % 0 DON'T PLOT IMAGES | 1 PLOT COLORED SUPERPIXELS
-plotsCompare = 1; % 0 DON'T PLOT IMAGES | 1 PLOT FCM SEGMENTATION
+printResults = 0;
+plotsIM = 0; % 0 DON'T PLOT IMAGES | 1 PLOT COLORED SUPERPIXELS
+plotsCompare = 0; % 0 DON'T PLOT IMAGES | 1 PLOT FCM SEGMENTATION
 myFilter = myFilter2; % 0 NO FILTER | 1 BILATERAL | 2 KUWAHARA | 3 ANISIOTROPIC
 myColorSpace = 0; % 0 RGB | 1 HSV | 2 Lab | 3 sRGB
 myFeatureExtractor = 4; % 1 COLOR | 2 LBP | 3 TEXTURE (LM FILTERS) | 4 COLOR+TEXTURE | 7 GLCM | 5 AUTO-ENCODER
-myClassifier = 0; % 0 NONE | 1 MSE | 2 SVM | 3 CANFIS | 4 COSINE | 5 ALL (COMPARISON)
+if exist('myCl', 'var')
+    myClassifier = myCl; % 0 NONE | 1 MSE | 2 SVM | 3 CANFIS | 4 COSINE | 5 ALL (COMPARISON)
+else
+    myClassifier = 0;
+end
 myClusters = 1; % 0 MY CLASSES | 1 MY FCM | 2 MATLAB ANFIS
 classifyMethod = 1; % 0 SUPERPIXELS | 1 CENTROIDS
 useCropped = 0; % 0 UAV IMAGES | 1 CROPPED IMAGES
@@ -27,7 +31,7 @@ myAccs = [];
 readImagePath;
 preProcessImages;
 % originalRgbImage = 1;
-if returnOriImg
+if exist('returnOriImg', 'var') && returnOriImg == 1
     originalRgbImage = rgbImage;
 else
     originalRgbImage = 1;
@@ -42,7 +46,11 @@ colorSpace;
 %% Segmentando e achando K para superpixels
 [x, y, z] = size(rgbImage);
 % K = 2*round((x/100) * (y/100));
-K = round((x/100) * (y/100));
+if x >= 100 || y >= 100
+    K = round((x/100) * (y/100) * z);
+else
+    K = round((x/10) * (y/10));
+end
 if increaseSp
 %     if x >= 100 || y >= 100
 %         K = round((x/50) * (y/50));

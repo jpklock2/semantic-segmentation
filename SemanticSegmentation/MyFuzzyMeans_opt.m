@@ -11,7 +11,7 @@ prints = 0; % print dos valores dos resultados
 m = 2; % numero M da matriz U
 iter = 1; % iteracao inicial
 Nmax = 101; % numero maximo de iteracoes permitido
-tol = 0.0001; % tolerancia para parar estibilizacao da funcao objetivo
+tol = 1e-5; % tolerancia para parar estibilizacao da funcao objetivo
 
 %% criacao da matriz aleatoria U
 n = size(X,1); % numero de elementos de X

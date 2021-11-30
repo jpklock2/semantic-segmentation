@@ -21,9 +21,10 @@
  else
      if strcmp(dataset, 'SW')
         rgbImage = rgbImageTemp;
+     elseif strcmp(dataset, 'BR')
+         rgbImage = imresize(rgbImageTemp, 0.25); % diminui o tamanho da imagem para diminuir os calculos
      else
-%          rgbImage = rgbImageTemp;
-        rgbImage = imresize(rgbImageTemp, 0.25); % diminui o tamanho da imagem para diminuir os calculos
+         rgbImage = rgbImageTemp;
      end
  end
 %  originalRgbImage = rgbImage;

@@ -1,7 +1,7 @@
 function [resCentro, resProb, resIn, resArea, resDist, visDist, visProb, visIn, redArea] = geoAdjacencyTM(geoAdjacencies, adjacencies, classes, Lmask, mask, maskGeo, cropSize, utilCropSize, parameters, filter, geo_img, util_mask, R, lon, lat, imgCnt, rotPlotImage, ~)
 
 %geoAdjacencies, ftGeoOwn, ftGeoAdj
-run_template_matching = 1;
+run_template_matching = 0;
 if R == 0
     name = ['Images\Dataset_SW\Correlation_Matrices\img_' num2str(imgCnt, '%05.f') '.mat'];
 else
@@ -227,18 +227,18 @@ for ponY = 1:nP
 end
 fprintf('\Tempo total = %f\n\n', toc);
 if R == 0
-    save(['Images\Dataset_SW\Correlation_Matrices\img_' num2str(imgCnt, '%05.f') '.mat'], 'posMatrix', 'resultsMatrix', 'pX', 'pY', 'ponY', 'ponX', 'BW_Template', 'cropSize');
+    save(['PositionEstimation\Images\Dataset_SW\Correlation_Matrices\' num2str(imgCnt, '%05.f') '.mat'], 'posMatrix', 'resultsMatrix', 'pX', 'pY', 'ponY', 'ponX', 'BW_Template', 'cropSize');
 else
-    save(['Images\Dataset_BR\Correlation_Matrices\img_' num2str(imgCnt, '%05.f') '.mat'], 'posMatrix', 'resultsMatrix', 'pX', 'pY', 'ponY', 'ponX', 'BW_Template', 'cropSize');
+    save(['PositionEstimation\Images\Dataset_BR\Correlation_Matrices\' num2str(imgCnt, '%05.f') '.mat'], 'posMatrix', 'resultsMatrix', 'pX', 'pY', 'ponY', 'ponX', 'BW_Template', 'cropSize');
 end
 
 % clearvars posMatrix resultsMatrix pX pY ponY ponX BW_Template cropSize
 dbg = 1;
 else
     if R == 0
-        load(['Images\Dataset_SW\Correlation_Matrices\img_' num2str(imgCnt, '%05.f') '.mat']); 
+        load(['PositionEstimation\Images\Dataset_SW\Correlation_Matrices\' num2str(imgCnt, '%05.f') '.mat']); 
     else
-        load(['Images\Dataset_BR\Correlation_Matrices\img_' num2str(imgCnt, '%05.f') '.mat']);
+        load(['PositionEstimation\Images\Dataset_BR\Correlation_Matrices\' num2str(imgCnt, '%05.f') '.mat']);
     end
 end
 

@@ -19,7 +19,7 @@ edge_type = 1; %futuramente para escolher o melhor extrator de borda
 
 %% Reading Logs
 fprintf('\nReading Logs... \n');
-load('Images/Dataset_SW/frame_data.mat');
+load('PositionEstimation/Images/Dataset_SW/frame_data.mat');
 frameLat=FRAMEDATA.e01; % a lat
 frameLong=FRAMEDATA.e1; %b lon
 frameYaw=FRAMEDATA.e2; % c yaw
@@ -27,18 +27,18 @@ framePitch=FRAMEDATA.e00; %d pitch
 frameRoll=FRAMEDATA.e3; % e roll
 framePress=FRAMEDATA.e4; % f presion
 %cargo los valores de posicion en pixels
-load('Images/Dataset_SW/posicao_correta.mat');
+load('PositionEstimation/Images/Dataset_SW/posicao_correta.mat');
 
 a1=POSICAOCORRETA.e03; % lat
 b1=POSICAOCORRETA.e1; %lon
 
-load('Images/Dataset_SW/posicao_piobj.mat');
+load('PositionEstimation/Images/Dataset_SW/posicao_piobj.mat');
 a3=POSICAOPIOBJ.e01;
 b3=POSICAOPIOBJ.e00;
 
 %% Reading Georeferenced Image
 fprintf('\nProcessing Georeferenced Image...\n');
-[geo_img, cmap] = imread('Images/Dataset_SW/map.jpg');
+[geo_img, cmap] = imread('PositionEstimation/Images/Dataset_SW/map.jpg');
 
 %% Calculating Sensor Informations
 %ref: https://www.imaging-resource.com/PRODS/T3I/T3IDAT.HTM
@@ -63,7 +63,7 @@ templates = [{}];
 targets = [{}];
 allTemplateResults = [{}];
 
-for i = 1000:length(imageNamesTemp)-1
+for i = 1:length(imageNamesTemp)-1
     
     %% Main Loop
     fprintf('\nRunning Image %d\n', i);
@@ -88,29 +88,30 @@ for i = 1000:length(imageNamesTemp)-1
     %% Semantic Mask - Training Georeferenced Image
     fprintf('\nRunning Semantic Segmentation Pipeline...\n');
     processGeo = 0;
-    if exist(['geoData_filter_' dataset '_' num2str(myFilter2) '.mat'], 'file') == 2 && ~processGeo
+    if exist(['PositionEstimation/geoData_' dataset '_filter_' num2str(myFilter2) '.mat'], 'file') == 2 && ~processGeo
         fprintf('\nGeoreferenced data found, loading data...\n\n');
-        load(['geoData_filter_' dataset '_' num2str(myFilter2) '.mat']);
+        load(['PositionEstimation/geoData_' dataset '_filter_' num2str(myFilter2) '.mat']);
     else
-        [maskGeo, maskIdxGeo, centroidsGeo, classesGeo, parameters, geoAdjacencies, ftGeoOwn, ftGeoAdj] = semanticSegmentation('Images/Dataset_SW/map.jpg', 1, myFilter2, dataset);
+        [maskGeo, maskIdxGeo, centroidsGeo, classesGeo, parameters, geoAdjacencies, ftGeoOwn, ftGeoAdj] = semanticSegmentation('Images/Dataset_SW/map.jpg', 1, myFilter2, dataset, 0);
         LmaskGeo = zeros(size(maskGeo));
         for mx = 1:length(classesGeo)
             LmaskGeo(maskGeo == mx) = classesGeo(mx);
         end
         outputImage = evalFunction(classesGeo, 10, maskIdxGeo, geo_img, 1701);
         fig = figure; montage({geo_img(150:end-180, 140:end-100, :), outputImage(150:end-180, 140:end-100, :)}, 'BorderSize', [5 5], 'Size', [2 1]);
-        save(['geoData_filter_' dataset '_' num2str(myFilter2) '.mat'],'maskGeo','maskIdxGeo','centroidsGeo','classesGeo','parameters','LmaskGeo','geoAdjacencies','ftGeoOwn','ftGeoAdj');
+        save(['PositionEstimation/geoData_' dataset '_filter_' num2str(myFilter2) '.mat'],'maskGeo','maskIdxGeo','centroidsGeo','classesGeo','parameters','LmaskGeo','geoAdjacencies','ftGeoOwn','ftGeoAdj');
     end
     
     %% Semantic Mask - Training UAV Image
     fprintf('\nRunning Semantic Segmentation Pipeline...\n');
-    [mask, maskIdx, centroids, classes, ~, adjacencies, ftOwn, ftAdj, currImage, currImagePlot] = semanticSegmentation(outf, i+1, myFilter2, dataset, classesGeo, centroidsGeo, parameters, [dimX dimY]);
-    currImage = imresize(currImage, [dimX dimY], 'Bilinear');
+    [mask, maskIdx, centroids, classes, ~, adjacencies, ftOwn, ftAdj, currImage, currImagePlot] = semanticSegmentation(outf, i+1, myFilter2, dataset, 1, 0, classesGeo, centroidsGeo, parameters, [dimX dimY]);
+%     currImage = imresize(currImage, [dimX dimY], 'Bilinear');
     outputSegmentation = evalFunction(classes, length(unique(classes)), maskIdx, currImagePlot, length(classes));
     %         oldMask = mask;
     Lmask = zeros(size(mask));
     for mx = 1:length(classes)
-        Lmask(mask == mx) = classes(mx);
+%         Lmask(mask == mx) = classes(mx);
+        Lmask(maskIdx{mx}) = classes(mx);
     end
 
     
@@ -155,8 +156,8 @@ for i = 1000:length(imageNamesTemp)-1
     fprintf('\nCorrecting Image Perspective...\n');
     tic;
     
-    mask = imresize(mask, [size(pre_uav_img, 1) size(pre_uav_img, 2)]);
-    Lmask = imresize(Lmask, [size(pre_uav_img, 1) size(pre_uav_img, 2)]);
+    mask = imresize(mask, [size(pre_uav_img, 1) size(pre_uav_img, 2)], 'nearest');
+    Lmask = imresize(Lmask, [size(pre_uav_img, 1) size(pre_uav_img, 2)], 'nearest');
     [rot_img, util_rot_img, rot_mask, util_rot_mask, util_mask, utilCropSize, currImage, rotPlotImage, rotOutputSegmentation]=correcion_perspectiva_segmentation(...
             scale_uav_img, (frameYaw(i)), framePitch(i), frameRoll(i), framePress(i), Lmask, mask, currImage, currImagePlot, outputSegmentation, pre_geo_img, pre_uav_img, perspective_correction_type,preprocessing_img);
     fprintf('Execution time for Perspective Correction: %f s\n', toc);
@@ -239,11 +240,11 @@ for i = 1000:length(imageNamesTemp)-1
         Long_match = (dX_match-b3(i))/(REARTH*cos(imageRefLat))+ imageRefLong;
         erro_lat = (Lat_match-(frameLat(i)*conv))*REARTH;
         erro_long = (Long_match-(frameLong(i)*conv))*REARTH*cos(imageRefLat);
-        ERR_TOTAL = sqrt(power(erro_lat,2) + power(erro_long,2))
+        ERR_TOTAL = sqrt(power(erro_lat,2) + power(erro_long,2));
        
 
         log_coords1 = [log_coords1; ERR_TOTAL,n_case,i];       
-%         save log_coords1.mat log_coords1
+        save log_coords1.mat log_coords1
 
 
     end    

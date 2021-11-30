@@ -1,23 +1,21 @@
-if useAll
-    listing = dir('./Images/Test/Original');
+if strcmp(dataset, 'BR')
+    imagesPath = 'PositionEstimation/Images/Dataset_BR/UAV_img';
+    listing = dir(['./' imagesPath]);
     imageNames = [{}];
-    imageNames{1} = 'Mosaicoo.tif'; % mudar para pegar automatico eventualmente
+    imageNames{1} = 'map.tif';
     for i=1:length(listing)
         if contains(lower(listing(i).name), '.jpg')
             imageNames = [imageNames; listing(i).name];
         end
     end
-else
-    imagesPath = 'Images/Test/Original_Dev';
-%     imagesPath = 'Images/Test/Cropped/SemEqualizacao';
-%     imagesPath = 'Images/Test/Cropped/ComEqualizacao';
-% imagesPath = 'Imagens_artigo';
-useCropped = 0;
+    
+elseif strcmp(dataset, 'SW')
+    imagesPath = 'PositionEstimation/Images/Dataset_SW/UAV_img';
     listing = dir(['./' imagesPath]);
     imageNames = [{}];
-    imageNames{1} = 'Mosaicoo.tif'; % mudar para pegar automatico eventualmente
+    imageNames{1} = 'map.jpg';
     for i=1:length(listing)
-        if contains(lower(listing(i).name), '.jpg')
+        if contains(lower(listing(i).name), '.pgm')
             imageNames = [imageNames; listing(i).name];
         end
     end

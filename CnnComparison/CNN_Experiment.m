@@ -1,8 +1,7 @@
  %% Starting Code
 initCode;
 addpath('../SemanticSegmentation');
-useAll = 0;
-baseCase = 0;
+dataset = 'BR';
 loadImageNames;
 imageNamesTemp = imageNames(2:end);
 loadColors;
@@ -15,7 +14,7 @@ myColors = myColors([2 4 8 1], :);
 classes = myColorsClasses';
 cmap = myColors;
 
-trainImage = imread('Images/Train/map.tif');
+trainImage = imread('CnnComparison/Images/Train/map.tif');
 trainImage = imresize(trainImage, 0.25);
 origTrainImage = trainImage;
 
@@ -37,10 +36,11 @@ end
 
 segmentMap = 0;
 if segmentMap
-[maskGeo, maskIdxGeo, centroidsGeo, classesGeo, parameters, geoAdjacencies, ftGeoOwn, ftGeoAdj, ~, currImagePlot] = semanticSegmentation('Images/Train/map.tif', 1, 3);
+[maskGeo, maskIdxGeo, centroidsGeo, classesGeo, parameters, geoAdjacencies, ftGeoOwn, ftGeoAdj, ~, currImagePlot] = semanticSegmentation('CnnComparison/Images/Train/map.tif', 1, 3, dataset, 0, 2);
 LmaskGeo = zeros(size(maskGeo));
 for mx = 1:length(classesGeo)
-    LmaskGeo(maskGeo == mx) = classesGeo(mx);
+%     LmaskGeo(maskGeo == mx) = classesGeo(mx);
+    LmaskGeo(maskIdxGeo{mx}) = classesGeo(mx);
 end
 % outputSegmentation = evalFunction(classesGeo, length(unique(classesGeo)), maskIdxGeo, currImagePlot, length(classesGeo));
 save(['mapData.mat'],'maskGeo','maskIdxGeo','centroidsGeo','classesGeo','parameters','LmaskGeo');
@@ -63,7 +63,7 @@ if generateDataset
     
 % trainImage = imread('Images/Train/Mosaicoo.tif');
 % trainImage = imresize(trainImage, 0.25);
-load('Images/Train/Classes/myClasses.mat');
+load('CnnComparison/Images/Train/Classes/myClasses.mat');
 
 % combining classes
 myClasses{1} = [myClasses{1}; myClasses{2}; myClasses{3}];
@@ -171,8 +171,8 @@ imgCnt = 1;
 %         figure; imshow(currLabelColor);
 %         currPath = '';
 %         imwrite(uint8(currImg), ['CNNCodes/myDataset/images2/' num2str(imgCnt, '%05.f') '.png']);
-        imwrite(currImg, ['Images\CnnDataset\ImagesTrain\' num2str(imgCnt, '%05.f') '.png']);
-        imwrite(currLabelColor, ['Images\CnnDataset\LabelsTrain\' num2str(imgCnt, '%05.f') '.png']);
+        imwrite(currImg, ['CnnComparison/Images/CnnDataset/ImagesTrain/' num2str(imgCnt, '%05.f') '.png']);
+        imwrite(currLabelColor, ['CnnComparison/Images/CnnDataset/LabelsTrain/' num2str(imgCnt, '%05.f') '.png']);
         imgCnt = imgCnt + 1;
         dbg = 1;
         
@@ -183,12 +183,12 @@ end
 
 %% Reading images
 
-imds = imageDatastore('Images\CnnDataset\ImagesTrain');
+imds = imageDatastore('CnnComparison/Images/CnnDataset/ImagesTrain');
 % I = readimage(imds,25);
 % I = histeq(I);
 % imshow(I);
 
-pxds = pixelLabelDatastore('Images\CnnDataset\LabelsTrain', myColorsClasses, myColors*255);
+pxds = pixelLabelDatastore('CnnComparison/Images/CnnDataset/LabelsTrain', myColorsClasses, myColors*255);
 
 % C = readimage(pxds,25);
 % B = labeloverlay(I,C,'ColorMap',myColors);
@@ -228,7 +228,7 @@ end
 
 rgbImage = imresize(rgbImage,[360, 480]);
 
-load(['Images/Test/Original_Dev/Classes/im' num2str(m+1) '.mat']);
+load(['CnnComparison/Images/Test/Original_Dev/Classes/im' num2str(m+1) '.mat']);
 
 % combining classes
 myClasses{1} = [myClasses{1}; myClasses{2}; myClasses{3}];
@@ -273,8 +273,8 @@ LmaskColorTemp = imresize(LmaskColor, [360, 480], 'nearest');
 % LmaskCategorical = categorical(LmaskCategorical, myColorsClasses);
 % expectedResult = LmaskCategorical;
 
-imwrite(rgbImage, ['Images\CnnDataset\ImagesTest/' num2str(m, '%05.f') '.png']);
-imwrite(LmaskColorTemp, ['Images\CnnDataset\LabelsTest/' num2str(m, '%05.f') '.png']);
+imwrite(rgbImage, ['CnnComparison/Images/CnnDataset/ImagesTest/' num2str(m, '%05.f') '.png']);
+imwrite(LmaskColorTemp, ['CnnComparison/Images/CnnDataset/LabelsTest/' num2str(m, '%05.f') '.png']);
 dbg = 1;
 
 end
@@ -332,9 +332,9 @@ end
 
 % I = histeq(originalRgbImage);
 
-imdsTest = imageDatastore('Images\CnnDataset\ImagesTest');
+imdsTest = imageDatastore('CnnComparison/Images/CnnDataset/ImagesTest');
 
-pxdsTest = pixelLabelDatastore('Images\CnnDataset\LabelsTest', myColorsClasses, myColors*255);
+pxdsTest = pixelLabelDatastore('CnnComparison/Images/CnnDataset/LabelsTest', myColorsClasses, myColors*255);
 
 % labImage = rgb2lab(originalRgbImage);
 % % [counts,binLocations] = imhist(rgbImage);
@@ -354,10 +354,10 @@ pxdsTest = pixelLabelDatastore('Images\CnnDataset\LabelsTest', myColorsClasses, 
 
 %% Generate FCM Dataset (no Classifier)
 
-generateFCM_ori = 1;
+generateFCM_ori = 0;
 if generateFCM_ori
     
-listing = dir('Images\Test\Original_Dev');
+listing = dir('CnnComparison/Images/Test/Original_Dev');
 imageNames = [{}];
 for i=1:length(listing)
     if contains(lower(listing(i).name), '.jpg')
@@ -370,7 +370,7 @@ outputImages = [{}];
 LmaskColors = [{}];
 for m = 1:length(imageNames)
 
-    [~, maskIdx, ~, classes, params, ~, ~, ~, ~, currImagePlot] = semanticSegmentation(imageNames{m}, 1, 3, '', 1);
+    [~, maskIdx, ~, classes, params, ~, ~, ~, ~, currImagePlot] = semanticSegmentation(imageNames{m}, 1, 3);
     
     outputImage = zeros(size(currImagePlot), 'like', currImagePlot);
     numRows = size(outputImage, 1);
@@ -390,7 +390,7 @@ for m = 1:length(imageNames)
     currImagePlots = [currImagePlots; currImagePlot];
     outputImages = [outputImages; outputImage];
     LmaskColors = [LmaskColors; LmaskColor];
-%     imwrite(LmaskColor, ['Images\Results\Ours\' num2str(m, '%05.f') '.png']);
+    imwrite(LmaskColor, ['CnnComparison/Images/Results/Ours/' num2str(m, '%05.f') '.png']);
 %     fig = figure;
 %     montage({currImagePlot, outputImage, LmaskColor}, 'ThumbnailSize', [], 'BorderSize', [5 5], 'Size', [1 3], 'BackgroundColor', 'black');
 %     set(fig,'Units','Inches');
@@ -402,21 +402,21 @@ for m = 1:length(imageNames)
 end
 end
 
-fig = figure; montage({currImagePlots{1}, outputImages{1}, LmaskColors{1}, currImagePlots{2}, outputImages{2}, LmaskColors{2},...
-        currImagePlots{4}, outputImages{4}, LmaskColors{4}},...
-    'ThumbnailSize', [], 'BorderSize', [5 5], 'Size', [3 3], 'BackgroundColor', 'black');
+% fig = figure; montage({currImagePlots{1}, outputImages{1}, LmaskColors{1}, currImagePlots{2}, outputImages{2}, LmaskColors{2},...
+%         currImagePlots{4}, outputImages{4}, LmaskColors{4}},...
+%     'ThumbnailSize', [], 'BorderSize', [5 5], 'Size', [3 3], 'BackgroundColor', 'black');
 %     currImagePlots{4}, outputImages{4}, LmaskColors{4}, currImagePlots{7}, outputImages{7}, LmaskColors{7}},...
 %     'ThumbnailSize', [], 'BorderSize', [5 5], 'Size', [4 3], 'BackgroundColor', 'black');
-    set(fig,'Units','Inches');
-    pos = get(fig,'Position');
-    set(fig,'PaperPositionMode','Auto','PaperUnits','Inches','PaperSize',[pos(3), pos(4)])
-    print(fig,'D:\2021_1\mestrado\artigo\SIBIGRAPI\images\sem_segs.pdf','-dpdf','-r0');
+%     set(fig,'Units','Inches');
+%     pos = get(fig,'Position');
+%     set(fig,'PaperPositionMode','Auto','PaperUnits','Inches','PaperSize',[pos(3), pos(4)])
+%     print(fig,'D:\2021_1\mestrado\artigo\SIBIGRAPI\images\sem_segs.pdf','-dpdf','-r0');
 
-fprintf("\nOurs Reslts...\n");
-pxdsOurs = pixelLabelDatastore('Images\Results\Ours', myColorsClasses, myColors*255);
-metrics = evaluateSemanticSegmentation(pxdsOurs,pxdsTest,'Verbose',false);
-metrics.DataSetMetrics
-metrics.ClassMetrics
+% fprintf("\nOurs Reslts...\n");
+% pxdsOurs = pixelLabelDatastore('CnnComparison/Images/Results/Ours', myColorsClasses, myColors*255);
+% metrics = evaluateSemanticSegmentation(pxdsOurs,pxdsTest,'Verbose',false);
+% metrics.DataSetMetrics
+% metrics.ClassMetrics
 
 % fprintf("\nCANFIS 2 Centroids No Dendo Reslts...\n");
 % pxdsFCM = pixelLabelDatastore('CNNCodes/myDataset/labelsFCM_CANFIS_2_centroids_nodendo', myColorsClasses, myColors*255);
@@ -434,7 +434,7 @@ generateFCM = 0;
 if generateFCM
 for m = 1:10
 
-    [mask, maskIdx, centroids, classes, ~, adjacencies, ftOwn, ftAdj, currImage, currImagePlot] = semanticSegmentation(imdsTest.Files{m}, m+1, 3, '', 1, classesGeo, centroidsGeo, parameters, [360 480]);
+    [mask, maskIdx, centroids, classes, ~, adjacencies, ftOwn, ftAdj, currImage, currImagePlot] = semanticSegmentation(imdsTest.Files{m}, m+1, 3, '', 1, 2, classesGeo, centroidsGeo, parameters, [360 480]);
     
     %     Lmask = zeros(size(mask));
     LmaskRed = zeros(size(mask));
@@ -446,9 +446,13 @@ for m = 1:10
     for mx = 1:length(classes)
     %         Lmask(mask == mx) = classes(mx);
     %         myClasses{classes(mx)} = [myClasses{classes(mx)}; maskIdx{mx}];
-        LmaskRed(mask == mx) = myColors(classes(mx), 1);
-        LmaskGreen(mask == mx) = myColors(classes(mx), 2);
-        LmaskBlue(mask == mx) = myColors(classes(mx), 3);
+%         LmaskRed(mask == mx) = myColors(classes(mx), 1);
+%         LmaskGreen(mask == mx) = myColors(classes(mx), 2);
+%         LmaskBlue(mask == mx) = myColors(classes(mx), 3);
+        
+        LmaskRed(maskIdx{mx}) = myColors(classes(mx), 1);
+        LmaskGreen(maskIdx{mx}) = myColors(classes(mx), 2);
+        LmaskBlue(maskIdx{mx}) = myColors(classes(mx), 3);
 %         LmaskCategorical(mask == mx) = myColorsClasses(classes(mx));
     end
     LmaskColor(:, :, 1) = LmaskRed;
@@ -456,13 +460,13 @@ for m = 1:10
     LmaskColor(:, :, 3) = LmaskBlue;
 %     LmaskCategorical = categorical(LmaskCategorical, myColorsClasses);
     
-    imwrite(LmaskColor, ['Images\Results\Ours\' num2str(m, '%05.f') '.png']);
+    imwrite(LmaskColor, ['CnnComparison/Images/Results/Ours/' num2str(m, '%05.f') '.png']);
     
 end
 end
 
 fprintf("\nOurs Reslts...\n");
-pxdsOurs = pixelLabelDatastore('Images\Results\Ours', myColorsClasses, myColors*255);
+pxdsOurs = pixelLabelDatastore('CnnComparison/Images/Results/Ours', myColorsClasses, myColors*255);
 metrics = evaluateSemanticSegmentation(pxdsOurs,pxdsTest,'Verbose',false);
 metrics.DataSetMetrics
 metrics.ClassMetrics
@@ -562,7 +566,7 @@ if doTraining
 %     newlgraph = layerGraph(net);
 %     [net2, info2] = trainNetwork(pximds,newlgraph,options);
     [net2, info2] = trainNetwork(pximds,lgraph,options);
-    save('TrainedNetworks\fcn.mat','net2','info2');
+    save('CnnComparison/TrainedNetworks/fcn.mat','net2','info2');
 end
 end
 
@@ -602,7 +606,7 @@ dsTrain = combine(imds, pxds);
 doTraining = true;
 if doTraining    
     [net, info] = trainNetwork(dsTrain,lgraph,options);
-    save('TrainedNetworks\deeplab.mat','net','info');
+    save('CnnComparison/TrainedNetworks/deeplab.mat','net','info');
 else
     data = load(pretrainedNetwork); 
     net = data.net;
@@ -648,7 +652,7 @@ dsTrain = combine(imds, pxds);
 doTraining = true;
 if doTraining    
     [net, info] = trainNetwork(dsTrain,lgraph,options);
-    save('TrainedNetworks\segnet.mat','net','info');
+    save('CnnComparison/TrainedNetworks/segnet.mat','net','info');
 else
     data = load(pretrainedNetwork); 
     net = data.net;
@@ -685,7 +689,7 @@ if runSegNet
 % title('SegNet');
 
 fprintf("\nSegNet Reslts...\n");
-data = load('TrainedNetworks\segnet.mat'); 
+data = load('CnnComparison/TrainedNetworks/segnet.mat'); 
 segnet = data.net;
 segResults = semanticseg(imdsTest,segnet, ...
     'MiniBatchSize',3, ...
@@ -774,7 +778,7 @@ if runResNet
 % metrics.ClassMetrics
 
 fprintf("\nDeepLab Reslts...\n");
-data = load('TrainedNetworks\deeplab.mat'); 
+data = load('CnnComparison/TrainedNetworks/deeplab.mat'); 
 deepnet = data.net;
 deepResults = semanticseg(imdsTest,deepnet, ...
     'MiniBatchSize',3, ...
@@ -814,7 +818,7 @@ if runFCN
 
 fprintf("\nFCN Reslts...\n");
 
-data = load('TrainedNetworks\fcn.mat'); 
+data = load('CnnComparison/TrainedNetworks/fcn.mat'); 
 fcnnet = data.net2;
 % predict_scores = fcn_predict_mex(rgbImage);
 % I = readimage(imdsTest,1);
@@ -911,10 +915,11 @@ for i = 1:10
 %     subplot(223); imshow(B4);
 %     subplot(224); imshow(B0);
     pixelLabelColorbar(cmap,classes);
-    set(fig,'Units','Inches');
-    pos = get(fig,'Position');
-    set(fig,'PaperPositionMode','Auto','PaperUnits','Inches','PaperSize',[pos(3), pos(4)]);
-    print(fig,['D:\2021_1\mestrado\artigo\SIBIGRAPI\images\deep_' num2str(i) '.pdf'],'-dpdf','-r0');
+%     set(fig,'Units','Inches');
+%     pos = get(fig,'Position');
+%     set(fig,'PaperPositionMode','Auto','PaperUnits','Inches','PaperSize',[pos(3), pos(4)]);
+%     print(fig,['D:\2021_1\mestrado\artigo\SIBIGRAPI\images\deep_' num2str(i) '.pdf'],'-dpdf','-r0');
+    
 %     print(fig,['D:\2021_1\mestrado\artigo\deep.pdf'],'-dpdf','-r0');
 %     title(['Image ' num2str(i)]);
 

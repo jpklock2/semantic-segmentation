@@ -15,6 +15,7 @@ if (bestK == 0)
 %         [~, idx2] = sort(Utemp, 2);
 %         jotas = [jotas; J(end)];
         end
+        jotasInd(isnan(jotasInd)) = [];
         jotas = [jotas; median(jotasInd)];
     end
     KF = knee_pt(jotas);
